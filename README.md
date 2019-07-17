@@ -19,7 +19,7 @@ Instructions
 Install the library components as a dependency of your project
 
 ```
-$> npm install AssemblyScript/node
+$> npm install --save-dev AssemblyScript/node
 ```
 
 and include it in your build step to gain access to the implementations it provides:
@@ -45,3 +45,8 @@ To run the tests, first make sure that development dependencies are installed, t
 ```
 $> npm test
 ```
+
+One of the dependencies is [node-wasi](https://github.com/devsnek/node-wasi), which is a native
+module. If you are running into issues when compiling it (on Windows), make sure that node-wasi
+supports your version of node.js, that your machine can build native modules in the first place
+and that your version of npm is recent (`npm install npm@latest -g`).
