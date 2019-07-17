@@ -12,7 +12,8 @@
     "url": "https://github.com/AssemblyScript/node/issues"
   },
   "devDependencies": {
-    "assemblyscript": "github:AssemblyScript/assemblyscript",
+    "@as-pect/core": "^2.2.0",
+    "assemblyscript": "github:assemblyscript/assemblyscript#7c775d1bccbe08fec5d820b9d53ae44ff6bd1e49",
     "diff": "^4.0.1",
     "glob": "^7.1.4",
     "wasi": "github:devsnek/node-wasi"
@@ -20,7 +21,5 @@
   "scripts": {
     "test": "node tests/node"
   },
-  "dependencies": {
-    "@as-pect/core": "^2.1.5"
-  }
+  "dependencies": {}
 }

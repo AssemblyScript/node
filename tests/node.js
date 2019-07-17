@@ -70,7 +70,7 @@ const ascOptions = [
   "--lib", "assembly",
 ];
 
-const files = glob.sync("__tests__/**/*.spec.ts")
+const files = glob.sync("tests/**/*.spec.ts")
   .map(relativeFromCwd);
 
 const untouchedBinaryMap = new Map();
