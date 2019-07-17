@@ -1,1 +1,1 @@
-// TODO: Set up globals, like Buffer
+export { Buffer } from "./buffer";
