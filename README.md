@@ -29,7 +29,7 @@ $> asc --lib ./node_modules/@assemblyscript/node/assembly [...]
 ```
 
 Doing so will automatically register common globals like the `Buffer` class and enables requiring
-for example the filesystem module through `import "fs"`.
+for example the filesystem module through `import * as fs from "fs"`.
 
 Documentation
 -------------
@@ -43,5 +43,5 @@ Building
 To run the tests, first make sure that development dependencies are installed, then run:
 
 ```
-$> npm run test
+$> npm test
 ```
