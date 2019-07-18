@@ -37,9 +37,13 @@ class Reporter extends EmptyReporter {
   }
 
   onTestFinish(group, test) {
-    if (test.pass) process.stdout.write("Test      : " + group.name + " -> " + test.name + " ✔ PASS");
-    else           process.stdout.write("Test      : " + group.name + " -> " + test.name + " ❌ FAIL");
-    process.stdout.write("\n");
+    if (test.pass) process.stdout.write("Test      : " + group.name + " -> " + test.name + " ✔ PASS\n");
+    else           process.stdout.write("Test      : " + group.name + " -> " + test.name + " ❌ FAIL\n");
+
+    if (!test.pass) {
+      process.stdout.write("Actual    : " + test.actual.message + "\n");
+      process.stdout.write("Expected  : " + test.expected.message + "\n");
+    }
 
     if (test.logs.length > 0) {
       test.logs.forEach((e, i) => {
@@ -49,7 +53,10 @@ class Reporter extends EmptyReporter {
       process.stdout.write("\n");
     }
   }
-  onFinish() {
+  onFinish(context) {
+    const passed = context.testGroups.filter(e => !e.pass).length === 0;
+    if (passed) process.stdout.write("Suite     : ✔ PASS");
+    else           process.stdout.write("Suite     : ❌ FAIL");
     process.stdout.write("\n");
   }
 }
