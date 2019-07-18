@@ -1,5 +1,6 @@
 import { BLOCK_MAXSIZE } from "rt/common";
 import { E_INVALIDLENGTH, E_INDEXOUTOFRANGE } from "util/error";
+import { Uint8Array } from "typedarray";
 
 export class Buffer extends Uint8Array {
   constructor(size: i32) {
@@ -16,11 +17,8 @@ export class Buffer extends Uint8Array {
     let buffer = __alloc(size, idof<ArrayBuffer>());
     // This retains the pointer to the result Buffer.
     let result = changetype<Buffer>(__alloc(offsetof<Buffer>(), idof<Buffer>()));
-    // @ts-ignore: This retains the pointer to the result underlying ArrayBuffer
     result.data = changetype<ArrayBuffer>(buffer);
-    // @ts-ignore: This property is @unsafe and used by the parent ArrayBufferView class.
     result.dataStart = changetype<usize>(buffer);
-    // @ts-ignore: This property is @unsafe and used by the parent ArrayBufferView class.
     result.dataLength = size;
     return result;
   }
