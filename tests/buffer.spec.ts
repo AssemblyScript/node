@@ -42,4 +42,29 @@ describe("buffer", () => {
     // TODO: expectFn(() => { Buffer.allocUnsafe(-1); }).toThrow();
     // TODO: expectFn(() => { Buffer.allocUnsafe(BLOCK_MAXSIZE + 1); }).toThrow();
   });
+
+  test("#concat", () => {
+    let list: Buffer[] = new Array<Buffer>(0);
+    for (let i = 0; i < 5; i++) {
+      let buff = Buffer.alloc(5 - i);
+      for (let j = 0; j < (5 - i); j++) {
+         buff[j] = u8(i);
+      }
+      list.push(buff);
+    }
+    let actual: Buffer = Buffer.concat<Buffer[]>(list, 15);
+
+    let expected: Buffer = Buffer.alloc(15);
+    expected[5] = 1;
+    expected[6] = 1;
+    expected[7] = 1;
+    expected[8] = 1;
+    expected[9] = 2;
+    expected[10] = 2;
+    expected[11] = 2;
+    expected[12] = 3;
+    expected[13] = 3;
+    expected[14] = 4;
+    expect<ArrayBuffer>(actual.buffer).toStrictEqual(expected.buffer);
+  });
 });

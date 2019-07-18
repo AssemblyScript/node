@@ -41,14 +41,15 @@ class Reporter extends EmptyReporter {
     else           process.stdout.write("Test      : " + group.name + " -> " + test.name + " ❌ FAIL\n");
 
     if (!test.pass) {
-      process.stdout.write("Actual    : " + test.actual.message + "\n");
-      process.stdout.write("Expected  : " + test.expected.message + "\n");
+      if (test.actual) process.stdout.write("Actual    : " + test.actual.message + "\n");
+      if (test.expected) process.stdout.write("Expected  : " + test.expected.message + "\n");
     }
 
     if (test.logs.length > 0) {
       test.logs.forEach((e, i) => {
         if (i > 0) process.stdout.write("\n");
-        process.stdout.write("Log       : " + e.value);
+        if (e.bytes) process.stdout.write("Log       : " + Buffer.from(e.bytes).toString("hex"));
+        else         process.stdout.write("Log       : " + e.value);
       });
       process.stdout.write("\n");
     }
