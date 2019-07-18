@@ -34,7 +34,7 @@ for example the filesystem module through `import * as fs from "fs"`.
 Documentation
 -------------
 
-* [Preliminary API documentation](https://github.com/AssemblyScript/node/wiki/API)
+* [Status and API documentation on the wiki](https://github.com/AssemblyScript/node/wiki)
 * [Implementation sources](./assembly)
 
 Building
