@@ -3,4 +3,6 @@ declare class Buffer extends Uint8Array {
   static alloc(size: i32): Buffer;
   /** This method allocates a new Buffer of indicated size. This is unsafe because the data is not zeroed. */
   static allocUnsafe(size: i32): Buffer;
+  /** This method creates a Buffer from the given reference. This method is naive and defaults to utf8 encoding for strings. */
+  static from<T>(value: T): Buffer;
 }
