@@ -153,3 +153,7 @@ function runTest(file, type, binary, wat) {
   wasi.view = new DataView(wasm.memory.buffer);
   context.run(wasm);
 }
+
+if (errors.length > 0) {
+  process.exit(1);
+}

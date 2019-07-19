@@ -3,4 +3,6 @@ declare class Buffer extends Uint8Array {
   static alloc(size: i32): Buffer;
   /** This method allocates a new Buffer of indicated size. This is unsafe because the data is not zeroed. */
   static allocUnsafe(size: i32): Buffer;
+  /** This method is used for sorting Buffer objects. */
+  static compare(a: Buffer, b: Buffer): i32;
 }

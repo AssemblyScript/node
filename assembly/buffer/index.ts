@@ -22,4 +22,14 @@ export class Buffer extends Uint8Array {
     result.dataLength = size;
     return result;
   }
+
+  public static readonly compare: (a: Buffer, b: Buffer) => i32 = (a: Buffer, b: Buffer): i32 => {
+    let compareLength = min<i32>(a.length, b.length);
+    let result = memory.compare(a.dataStart, b.dataStart, compareLength);
+    if (result == 0) {
+      return a.length - b.length;
+    } else {
+      return result;
+    }
+  };
 }
