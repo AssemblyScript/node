@@ -22,4 +22,8 @@ export class Buffer extends Uint8Array {
     result.dataLength = size;
     return result;
   }
+
+  public static isBuffer<T>(value: T): bool {
+    return value instanceof Buffer;
+  }
 }

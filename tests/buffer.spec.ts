@@ -42,4 +42,17 @@ describe("buffer", () => {
     // TODO: expectFn(() => { Buffer.allocUnsafe(-1); }).toThrow();
     // TODO: expectFn(() => { Buffer.allocUnsafe(BLOCK_MAXSIZE + 1); }).toThrow();
   });
+
+  test("#isBuffer", () => {
+    let a = "";
+    let b = new Uint8Array(0);
+    let c = 0;
+    let d = 1.1;
+    let e = new Buffer(0);
+    expect<bool>(Buffer.isBuffer<string>(a)).toBeFalsy();
+    expect<bool>(Buffer.isBuffer<Uint8Array>(b)).toBeFalsy();
+    expect<bool>(Buffer.isBuffer<i32>(c)).toBeFalsy();
+    expect<bool>(Buffer.isBuffer<f64>(d)).toBeFalsy();
+    expect<bool>(Buffer.isBuffer<Buffer>(e)).toBeTruthy();
+  });
 });
