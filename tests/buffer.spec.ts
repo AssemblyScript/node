@@ -1,3 +1,9 @@
+function bufferFrom(values: i32[]): Buffer {
+  let buffer = new Buffer(values.length);
+  for (let i = 0; i < values.length; i++) buffer[i] = <u8>values[i];
+  return buffer;
+}
+
 /**
  * This is the buffer test suite. For each prototype function, put a single test
  * function call here.
@@ -9,8 +15,6 @@
  *   });
  * });
  */
-import { BLOCK_MAXSIZE } from "rt/common";
-
 describe("buffer", () => {
   test("#constructor", () => {
     expect<Buffer>(new Buffer(0)).toBeTruthy();
@@ -52,19 +56,12 @@ describe("buffer", () => {
       }
       list.push(buff);
     }
-    let actual: Buffer = Buffer.concat<Buffer[]>(list, 15);
+    let actual: Buffer = Buffer.concat(list, 15);
 
-    let expected: Buffer = Buffer.alloc(15);
-    expected[5] = 1;
-    expected[6] = 1;
-    expected[7] = 1;
-    expected[8] = 1;
-    expected[9] = 2;
-    expected[10] = 2;
-    expected[11] = 2;
-    expected[12] = 3;
-    expected[13] = 3;
-    expected[14] = 4;
+    let expected: Buffer = bufferFrom([0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 4]);
+
+    // TODO: When as-pect releases 2.2.1
+    // expect<Buffer>(actual).toStrictEqual(expected);
     expect<ArrayBuffer>(actual.buffer).toStrictEqual(expected.buffer);
   });
 });

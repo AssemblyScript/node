@@ -12,12 +12,7 @@ export class Buffer extends Uint8Array {
     return new Buffer(size);
   }
 
-  public static concat<T>(items: T, length: i32): Buffer {
-    if (!isArray<T>()) {
-      ERROR("Buffer.concat<T> must accept an Array where T extends Array<Uint8Array | Buffer>");
-    }
-    assert(unchecked(items[0]) instanceof Uint8Array); // Can this be a static check?
-
+  public static concat(items: Buffer[], length: i32): Buffer {
     let size: usize = 0;
     let itemCount = usize(items.length);
     let itemsDataStart = items.dataStart;
@@ -34,7 +29,7 @@ export class Buffer extends Uint8Array {
     let result = changetype<Buffer>(__alloc(offsetof<Buffer>(), idof<Buffer>()));
 
     result.data = changetype<ArrayBuffer>(buffer);
-    result.dataStart = changetype<usize>(buffer);
+    result.dataStart = buffer;
     let start: usize = result.dataStart;
     for (let i: usize = 0; i < itemCount && size > 0; i++) {
       let item = load<usize>(itemsDataStart + (i << alignof<usize>()));
@@ -55,7 +50,7 @@ export class Buffer extends Uint8Array {
     // This retains the pointer to the result Buffer.
     let result = changetype<Buffer>(__alloc(offsetof<Buffer>(), idof<Buffer>()));
     result.data = changetype<ArrayBuffer>(buffer);
-    result.dataStart = changetype<usize>(buffer);
+    result.dataStart = buffer;
     result.dataLength = size;
     return result;
   }
