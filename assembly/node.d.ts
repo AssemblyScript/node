@@ -4,5 +4,5 @@ declare class Buffer extends Uint8Array {
   /** This method allocates a new Buffer of indicated size. This is unsafe because the data is not zeroed. */
   static allocUnsafe(size: i32): Buffer;
   /** This method concatenates an array of `U extends Uint8Array` objects. */
-  static concat<T extends Uint8Array[]>(list: T, totalLength: i32): Buffer;
+  static concat(list: Buffer[], totalLength: i32): Buffer;
 }
