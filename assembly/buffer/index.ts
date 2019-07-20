@@ -29,7 +29,6 @@ export class Buffer extends Uint8Array {
     // @ts-ignore: AssemblyScript treats this statement correctly
     if (value instanceof String[]) {
       let length = value.length;
-      log<i32>(length);
       let buffer = __alloc(length, idof<ArrayBuffer>());
       let sourceStart = value.dataStart;
       for (let i = 0; i < length; i++) {
@@ -72,7 +71,6 @@ export class Buffer extends Uint8Array {
       result.dataStart = buffer;
       result.dataLength = u32(length);
       return result;
-      
     }
     ERROR("Cannot call Buffer.from<T>() where T is not a string, Buffer, ArrayBuffer, Array, or Array-like Object.");
   }
