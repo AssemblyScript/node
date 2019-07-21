@@ -43,6 +43,14 @@ describe("buffer", () => {
     // TODO: expectFn(() => { Buffer.allocUnsafe(BLOCK_MAXSIZE + 1); }).toThrow();
   });
 
+  test("#writeUInt8", () => {
+    let buff = new Buffer(5);
+    expect<i32>(buff.writeUInt8(4)).toBe(1);
+    expect<i32>(buff.writeUInt8(252,4)).toBe(5);
+    expect<u8>(buff[0]).toBe(4);
+    expect<u8>(buff[4]).toBe(252);
+  });  
+
   test("#writeInt8", () => {
     let buff = new Buffer(5);
     expect<i32>(buff.writeInt8(9)).toBe(1);
@@ -65,5 +73,4 @@ describe("buffer", () => {
     //   newBuff.readInt8(5);
     // }).toThrow();
   })
-
 });
