@@ -43,6 +43,22 @@ describe("buffer", () => {
     // TODO: expectFn(() => { Buffer.allocUnsafe(BLOCK_MAXSIZE + 1); }).toThrow();
   });
 
+  test("#readUInt8", () => {
+    let buff = new Buffer(10);
+    buff[0] = -2;
+    buff[9] = 47;
+    // Testing casting between u8 and i8.
+    expect<u8>(buff.readUInt8(0)).toBe(254);
+    expect<u8>(buff.readUInt8()).toBe(254);
+    // Testing offset
+    expect<u8>(buff.readUInt8(9)).toBe(47);
+    // TODO:
+    // expectFn(() => { 
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readUInt8(5);
+    // }).toThrow();    
+  });
+
   test("#writeUInt8", () => {
     let buff = new Buffer(5);
     expect<i32>(buff.writeUInt8(4)).toBe(1);
@@ -72,5 +88,5 @@ describe("buffer", () => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readInt8(5);
     // }).toThrow();
-  })
+  });
 });
