@@ -28,4 +28,15 @@ export class Buffer extends Uint8Array {
     store<u8>(this.dataStart + offset, value);
     return offset + 1;
   }
+
+  writeInt8(value: i8, offset: i32 = 0): i32 {
+    if(<u32>offset > this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    store<i8>(this.dataStart + offset, value);
+    return offset + 1;
+  }
+  
+  readInt8(offset: i32 = 0): i8 {
+    if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    return load<i8>(this.dataStart + usize(offset));
+  }
 }
