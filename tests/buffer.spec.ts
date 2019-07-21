@@ -50,4 +50,20 @@ describe("buffer", () => {
     expect<i8>(buff[0]).toBe(9);
     expect<i8>(buff[4]).toBe(-3);
   });
+
+  test("#readInt8", () => {
+    let buff = new Buffer(10);
+    buff[0] = 5;
+    buff[9] = 255;
+    expect<i8>(buff.readInt8(0)).toBe(5);
+    expect<i8>(buff.readInt8()).toBe(5);
+    // Testing offset, and casting between u8 and i8.
+    expect<i8>(buff.readInt8(9)).toBe(-1);
+    // TODO:
+    // expectFn(() => { 
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readInt8(5);
+    // }).toThrow();
+  })
+
 });
