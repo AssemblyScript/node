@@ -23,11 +23,6 @@ export class Buffer extends Uint8Array {
     return result;
   }
 
-  readInt8(offset: i32 = 0): i8 {
-    if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
-    return load<i8>(this.dataStart + usize(offset));
-  }
-
   readUInt8(offset: i32 = 0): u8 {
     if(<u32>offset > this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
     return load<u8>(this.dataStart + usize(offset));
