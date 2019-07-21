@@ -3,4 +3,7 @@ declare class Buffer extends Uint8Array {
   static alloc(size: i32): Buffer;
   /** This method allocates a new Buffer of indicated size. This is unsafe because the data is not zeroed. */
   static allocUnsafe(size: i32): Buffer;
+  /** Reads a signed integer at the designated offset. */
+  readInt8(offset?: i32): i8;
+  readUInt8(offset?: i32): u8;
 }
