@@ -7,7 +7,7 @@ const path = require("path");
 const fs = require("fs");
 const Wasi = require("wasi");
 const wasi = new Wasi({});
-const diff = require("diff");
+let pass = true;
 
 const options = parse(process.argv.slice(2), {
   "help": {
@@ -160,4 +160,20 @@ function runTest(file, type, binary, wat) {
   wasi.setMemory(wasm.memory);
   wasi.view = new DataView(wasm.memory.buffer);
   context.run(wasm);
+  // TODO: when @as-pect/cli 2.2.1 is approved, just check context.pass
+  for (const group of context.testGroups) {
+    if (!pass) break;
+    if (!group.pass) {
+      pass = false;
+      break;
+    }
+    for (const test of group.tests) {
+      if (!test.pass) {
+        pass = false;
+        break;
+      }
+    }
+  }
 }
+
+process.exit(pass ? 0 : 1);
