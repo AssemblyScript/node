@@ -139,6 +139,14 @@ for (const file of files) {
 }
 
 function runTest(file, type, binary, wat) {
+  const watPath = path.join(path.dirname(file), path.basename(file, ".ts"))
+    + "." + type +  ".wat";
+
+  // should not block testing
+  fs.writeFile(watPath, wat, (err) => {
+    if (err) console.warn(err);
+  });
+
   const context = new TestContext({
     fileName: file,
     reporter,
