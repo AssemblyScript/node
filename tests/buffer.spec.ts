@@ -53,10 +53,10 @@ describe("buffer", () => {
     // Testing offset
     expect<u8>(buff.readUInt8(9)).toBe(47);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readUInt8(5);
-    // }).toThrow();    
+    // }).toThrow();
   });
 
   test("#writeUInt8", () => {
@@ -65,7 +65,7 @@ describe("buffer", () => {
     expect<i32>(buff.writeUInt8(252,4)).toBe(5);
     expect<u8>(buff[0]).toBe(4);
     expect<u8>(buff[4]).toBe(252);
-  });  
+  });
 
   test("#writeInt8", () => {
     let buff = new Buffer(5);
@@ -84,9 +84,34 @@ describe("buffer", () => {
     // Testing offset, and casting between u8 and i8.
     expect<i8>(buff.readInt8(9)).toBe(-1);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readInt8(5);
     // }).toThrow();
+  });
+
+  test("#inspect", () => {
+    let buff = new Buffer(16);
+    buff[0] = 0;
+    buff[1] = 1;
+    buff[2] = 2;
+    buff[3] = 3;
+    buff[4] = 4;
+    buff[5] = 5;
+    buff[6] = 6;
+    buff[7] = 7;
+    buff[8] = 8;
+    buff[9] = 9;
+    buff[10] = 10;
+    buff[11] = 11;
+    buff[12] = 12;
+    buff[13] = 13;
+    buff[14] = 14;
+    buff[15] = 15;
+    let result = buff.inspect();
+    expect<string>(result).toBe("<Buffer 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f>");
+    buff.INSPECT_MAX_BYTES = 5;
+    result = buff.inspect();
+    expect<string>(result).toBe("<Buffer 00 01 02 03 04...>");
   });
 });

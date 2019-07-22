@@ -11,4 +11,6 @@ declare class Buffer extends Uint8Array {
   writeInt8(value:i8, offset?:i32): i32;
   /** Reads a signed integer at the designated offset. */
   readInt8(offset?: i32): i8;
+  /** Inspect a buffer. */
+  inspect(): string;
 }
