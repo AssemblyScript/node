@@ -25,7 +25,7 @@ export class Buffer extends Uint8Array {
   }
 
   // @ts-ignore: Buffer returns on all valid branches
-  public static from<T>(value: T): Buffer {
+  public static from<T extends ArrayBufferView>(value: T): Buffer {
     // @ts-ignore: AssemblyScript treats this statement correctly
     if (value instanceof String[]) {
       let length = value.length;
