@@ -29,11 +29,10 @@ export class Buffer extends Uint8Array {
     // @ts-ignore: AssemblyScript treats this statement correctly
     if (value instanceof String[]) {
       let length = value.length;
-      log<i32>(length);
       let buffer = __alloc(length, idof<ArrayBuffer>());
       let sourceStart = value.dataStart;
       for (let i = 0; i < length; i++) {
-        let str = changetype<string>(load<usize>(sourceStart + (usize(i) << alignof<usize>())));
+        let str = changetype<string>(load<usize>(sourceStart + (<usize>i << alignof<usize>())));
         let value = parseFloat(str); // parseFloat is still naive
         store<u8>(buffer + usize(i), isFinite<f64>(value) ? u8(value) : u8(0));
       }
@@ -72,8 +71,32 @@ export class Buffer extends Uint8Array {
       result.dataStart = buffer;
       result.dataLength = u32(length);
       return result;
-      
     }
     ERROR("Cannot call Buffer.from<T>() where T is not a string, Buffer, ArrayBuffer, Array, or Array-like Object.");
+  }
+  public static isBuffer<T>(value: T): bool {
+    return value instanceof Buffer;
+  }
+
+  readUInt8(offset: i32 = 0): u8 {
+    if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    return load<u8>(this.dataStart + usize(offset));
+  }
+
+  writeUInt8(value: u8, offset: i32 = 0): i32 {
+    if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    store<u8>(this.dataStart + offset, value);
+    return offset + 1;
+  }
+
+  writeInt8(value: i8, offset: i32 = 0): i32 {
+    if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    store<i8>(this.dataStart + offset, value);
+    return offset + 1;
+  }
+
+  readInt8(offset: i32 = 0): i8 {
+    if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    return load<i8>(this.dataStart + usize(offset));
   }
 }
