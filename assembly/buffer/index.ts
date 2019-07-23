@@ -50,19 +50,21 @@ export class Buffer extends Uint8Array {
   public INSPECT_MAX_BYTES: i32 = 50;
 
   inspect(): string {
-    let length = this.byteLength;
+    let byteLength = this.byteLength;
     let dataStart = this.dataStart;
-    let maxBytes = this.INSPECT_MAX_BYTES;
-
-    // formula for calculating end string length (length * 2) + length - 1 + 9
+    let INSPECT_MAX_BYTES = this.INSPECT_MAX_BYTES;
+    let elipsisEnd = byteLength > INSPECT_MAX_BYTES;
+    let maxBytes = elipsisEnd ? INSPECT_MAX_BYTES : byteLength;
+    // formula for calculating end string length (3 * bytes) + 8
     // Example: Buffer.from([1, 2, 3, 4, 5]).inspect() == '<Buffer 01 02 03 04 05>'
-    let totalBytes = (min(length, <u32>maxBytes) * 3 + 8) << 1; // two bytes * formula
-    let buffer = __alloc(totalBytes, idof<String>());
+    let stringLength = 3 * maxBytes + 8;
+    if (elipsisEnd) stringLength += 3; // add 3 characters for elipsis
+    let buffer = __alloc(stringLength << 1, idof<String>());
 
     let source = "<Buffer ";
     memory.copy(buffer, changetype<usize>(source), 16); // copy the 16 "<Buffer " bytes
-    for (let i = 0; i < length; i++) {
-      let writeOffset = buffer + 16 + <usize>(i << 1) * 3;
+    let writeOffset = buffer + 16;
+    for (let i = 0; i < maxBytes; i++, writeOffset += 6) {
       let byte = load<u8>(dataStart + <usize>i);
       let top = (byte >>> 4) & 0xF;
       byte &= 0xF;
@@ -70,15 +72,15 @@ export class Buffer extends Uint8Array {
       store<u16>(writeOffset, top < 10 ? <u16>top + 48 : <u16>top + 87);
       store<u16>(writeOffset, byte < 10 ? <u16>byte + 48 : <u16>byte + 87, 2);
 
-      if (i < (maxBytes - 1)) {
-        store<u16>(writeOffset, <u16>(i == (length - 1) ? 62 : 32), 4); // " " | ">"
+      if (i == (maxBytes - 1)) {
+        if (elipsisEnd) {
+          // make this a single 64 bit store
+          store<u64>(writeOffset, <u64>17451646127570990, 4); // "...>"
+        } else {
+          store<u16>(writeOffset, <u16>62, 4); // ">"
+        }
       } else {
-        // TODO: Optimize this into a single u64 store
-        store<u16>(writeOffset, 46, 4); // "."
-        store<u16>(writeOffset, 46, 6); // "."
-        store<u16>(writeOffset, 46, 8); // "."
-        store<u16>(writeOffset, 62, 10); // ">"
-        break;
+        store<u16>(writeOffset, <u16>32, 4); // " "
       }
     }
 
