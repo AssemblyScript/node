@@ -27,6 +27,10 @@ export class Buffer extends Uint8Array {
     return result;
   }
 
+  public static isBuffer<T>(value: T): bool {
+    return value instanceof Buffer;
+  }
+
   readUInt8(offset: i32 = 0): u8 {
     if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
     return load<u8>(this.dataStart + usize(offset));

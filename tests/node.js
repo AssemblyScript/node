@@ -7,6 +7,7 @@ const path = require("path");
 const fs = require("fs");
 const Wasi = require("wasi");
 const wasi = new Wasi({});
+let pass = true;
 
 const options = parse(process.argv.slice(2), {
   "help": {
@@ -125,4 +126,8 @@ function runTest(file, type, binary, wat) {
   wasi.setMemory(wasm.memory);
   wasi.view = new DataView(wasm.memory.buffer);
   context.run(wasm);
+
+  if (!context.pass) pass = false;
 }
+
+process.exit(pass ? 0 : 1);
