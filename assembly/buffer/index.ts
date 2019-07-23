@@ -24,7 +24,7 @@ export class Buffer extends Uint8Array {
   }
 
   public static isBuffer<T>(value: T): bool {
-    return value instanceof Buffer && value != null;
+    return value instanceof Buffer;
   }
 
   readUInt8(offset: i32 = 0): u8 {
