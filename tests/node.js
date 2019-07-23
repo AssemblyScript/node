@@ -126,20 +126,8 @@ function runTest(file, type, binary, wat) {
   wasi.setMemory(wasm.memory);
   wasi.view = new DataView(wasm.memory.buffer);
   context.run(wasm);
-  // TODO: when @as-pect/cli 2.2.1 is approved, just check context.pass
-  for (const group of context.testGroups) {
-    if (!pass) break;
-    if (!group.pass) {
-      pass = false;
-      break;
-    }
-    for (const test of group.tests) {
-      if (!test.pass) {
-        pass = false;
-        break;
-      }
-    }
-  }
+
+  if (!context.pass) pass = false;
 }
 
 process.exit(pass ? 0 : 1);
