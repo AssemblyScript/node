@@ -10,6 +10,7 @@
  * });
  */
 import { BLOCK_MAXSIZE } from "rt/common";
+import { INSPECT_MAX_BYTES } from "buffer";
 
 describe("buffer", () => {
   test("#constructor", () => {
@@ -95,7 +96,7 @@ describe("buffer", () => {
     for (let i = 0; i < 16; i++) buff[i] = i;
     let result = buff.inspect();
     expect<string>(result).toBe("<Buffer 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f>");
-    buff.INSPECT_MAX_BYTES = 5;
+    INSPECT_MAX_BYTES = 5;
     result = buff.inspect();
     expect<string>(result).toBe("<Buffer 00 01 02 03 04...>");
 

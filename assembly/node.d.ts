@@ -14,3 +14,19 @@ declare class Buffer extends Uint8Array {
   /** Inspect a buffer. */
   inspect(): string;
 }
+
+declare module "buffer" {
+  /**
+   * The maximum number of bytes to inspect on a buffer.
+   *
+   * @example
+   * import { INSPECT_MAX_BYTES } from "buffer";
+   * // @ts-ignore: This is treated like a global
+   * INSPECT_MAX_BYTES = <i32>10;
+   */
+  export var INSPECT_MAX_BYTES: i32;
+
+  // To export the buffer, we must obtain the `typeof Buffer`
+  const BuffType: typeof Buffer;
+  export { BuffType as Buffer };
+}

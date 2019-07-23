@@ -4,6 +4,8 @@ import { Uint8Array } from "typedarray";
 
 const BUFFER_INSPECT_HEADER_START: string = "<Buffer ";
 
+export let INSPECT_MAX_BYTES: i32 = 50;
+
 export class Buffer extends Uint8Array {
   constructor(size: i32) {
     super(size);
@@ -47,11 +49,8 @@ export class Buffer extends Uint8Array {
     return load<i8>(this.dataStart + usize(offset));
   }
 
-  public INSPECT_MAX_BYTES: i32 = 50;
-
   inspect(): string {
     let byteLength = this.byteLength;
-    let INSPECT_MAX_BYTES = this.INSPECT_MAX_BYTES;
     if (INSPECT_MAX_BYTES == 0 || byteLength == 0) return "<Buffer >";
 
     // Calculate if an elipsis will be in the string
