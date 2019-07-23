@@ -25,7 +25,7 @@ export class Buffer extends Uint8Array {
 
   readUInt8(offset: i32 = 0): u8 {
     if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
-    return load<u8>(this.dataStart + usize(offset));
+    return load<u8>(this.dataStart + <usize>offset);
   }
 
   writeUInt8(value: u8, offset: i32 = 0): i32 {
@@ -42,16 +42,16 @@ export class Buffer extends Uint8Array {
   
   readInt8(offset: i32 = 0): i8 {
     if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
-    return load<i8>(this.dataStart + usize(offset));
+    return load<i8>(this.dataStart + <usize>offset);
   }
 
   readInt16LE(offset: i32 = 0): i16 {
     if(<u32>offset >= this.dataLength - 1) throw new RangeError(E_INDEXOUTOFRANGE);
-    return load<i16>(this.dataStart + usize(offset));
+    return load<i16>(this.dataStart + <usize>offset);
   }
 
   readInt16BE(offset: i32 = 0): i16 {
     if(<u32>offset >= this.dataLength - 1) throw new RangeError(E_INDEXOUTOFRANGE);
-    return bswap<i16>(load<i16>(this.dataStart + usize(offset)));
+    return bswap<i16>(load<i16>(this.dataStart + <usize>offset));
   }
 }

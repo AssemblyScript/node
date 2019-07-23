@@ -65,6 +65,11 @@ describe("buffer", () => {
     expect<i32>(buff.writeUInt8(252,4)).toBe(5);
     expect<u8>(buff[0]).toBe(4);
     expect<u8>(buff[4]).toBe(252);
+    // TODO:
+    // expectFn(() => { 
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeUInt8(5,10);
+    // }).toThrow();    
   });  
 
   test("#writeInt8", () => {
@@ -73,6 +78,11 @@ describe("buffer", () => {
     expect<i32>(buff.writeInt8(-3,4)).toBe(5);
     expect<i8>(buff[0]).toBe(9);
     expect<i8>(buff[4]).toBe(-3);
+    // TODO:
+    // expectFn(() => { 
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeInt8(5,10);
+    // }).toThrow();    
   });
 
   test("#readInt8", () => {
