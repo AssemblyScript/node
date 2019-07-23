@@ -1,4 +1,4 @@
-const { TestContext, EmptyReporter } = require("@as-pect/core");
+const { TestContext, VerboseReporter } = require("@as-pect/core");
 const { instantiateBuffer } = require("assemblyscript/lib/loader");
 const glob = require("glob");
 const { main } = require("assemblyscript/cli/asc");
@@ -27,41 +27,7 @@ if (options.unknown.length > 1) {
   process.exit(1);
 }
 
-class Reporter extends EmptyReporter {
-  onGroupFinish(group) {
-    if (group.name) {
-      if (group.pass) process.stdout.write("Group     : " + group.name + " -> ✔ PASS");
-      else            process.stdout.write("Group     : " + group.name + " -> ❌ FAIL");
-      process.stdout.write("\n");
-    }
-  }
-
-  onTestFinish(group, test) {
-    if (test.pass) process.stdout.write("Test      : " + group.name + " -> " + test.name + " ✔ PASS\n");
-    else           process.stdout.write("Test      : " + group.name + " -> " + test.name + " ❌ FAIL\n");
-
-    if (!test.pass) {
-      process.stdout.write("Actual    : " + test.actual.message + "\n");
-      process.stdout.write("Expected  : " + test.expected.message + "\n");
-    }
-
-    if (test.logs.length > 0) {
-      test.logs.forEach((e, i) => {
-        if (i > 0) process.stdout.write("\n");
-        process.stdout.write("Log       : " + e.value);
-      });
-      process.stdout.write("\n");
-    }
-  }
-  onFinish(context) {
-    const passed = context.testGroups.filter(e => !e.pass).length === 0;
-    if (passed) process.stdout.write("Suite     : ✔ PASS");
-    else           process.stdout.write("Suite     : ❌ FAIL");
-    process.stdout.write("\n");
-  }
-}
-
-const reporter = new Reporter();
+const reporter = new VerboseReporter();
 
 function relativeFromCwd(location) {
   return path.relative(process.cwd(), location);
