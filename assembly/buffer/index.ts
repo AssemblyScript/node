@@ -51,19 +51,30 @@ export class Buffer extends Uint8Array {
 
   inspect(): string {
     let byteLength = this.byteLength;
-    let dataStart = this.dataStart;
     let INSPECT_MAX_BYTES = this.INSPECT_MAX_BYTES;
+    if (INSPECT_MAX_BYTES == 0 || byteLength == 0) return "<Buffer >";
+
+    // Calculate if an elipsis will be in the string
     let elipsisEnd = byteLength > INSPECT_MAX_BYTES;
     let maxBytes = elipsisEnd ? INSPECT_MAX_BYTES : byteLength;
+
+    // find the start of the buffer
+    let dataStart = this.dataStart;
+
     // formula for calculating end string length (3 * bytes) + 8
     // Example: Buffer.from([1, 2, 3, 4, 5]).inspect() == '<Buffer 01 02 03 04 05>'
     let stringLength = 3 * maxBytes + 8;
     if (elipsisEnd) stringLength += 3; // add 3 characters for elipsis
-    let buffer = __alloc(stringLength << 1, idof<String>());
 
+    // create the result
+    let result = __alloc(stringLength << 1, idof<String>());
+
+    // copy the 16 "<Buffer " bytes
     let source = "<Buffer ";
-    memory.copy(buffer, changetype<usize>(source), 16); // copy the 16 "<Buffer " bytes
-    let writeOffset = buffer + 16;
+    memory.copy(result, changetype<usize>(source), 16);
+
+    // Start writing at index 8
+    let writeOffset: usize = result + 16;
     for (let i = 0; i < maxBytes; i++, writeOffset += 6) {
       let byte = load<u8>(dataStart + <usize>i);
       let top = (byte >>> 4) & 0xF;
@@ -84,6 +95,6 @@ export class Buffer extends Uint8Array {
       }
     }
 
-    return changetype<string>(buffer);
+    return changetype<string>(result);
   }
 }
