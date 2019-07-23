@@ -5,4 +5,14 @@ declare class Buffer extends Uint8Array {
   static allocUnsafe(size: i32): Buffer;
   /** This method is used for sorting Buffer objects. */
   static compare(a: Buffer, b: Buffer): i32;
+  /** This method asserts a value is a Buffer object via `value instanceof Buffer`. */
+  static isBuffer<T>(value: T): bool;
+  /** Reads an unsigned integer at the designated offset. */
+  readUInt8(offset?: i32): u8;
+  /** Writes an inputted u8 value to the buffer, at the desired offset. */
+  writeUInt8(value:u8, offset?:i32): i32;
+  /** Writes an inputted value to the buffer, at the desired offset. */
+  writeInt8(value:i8, offset?:i32): i32;
+  /** Reads a signed integer at the designated offset. */
+  readInt8(offset?: i32): i8;
 }

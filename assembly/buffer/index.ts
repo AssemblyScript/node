@@ -23,7 +23,7 @@ export class Buffer extends Uint8Array {
     return result;
   }
 
-  public static readonly compare: (a: Buffer, b: Buffer) => i32 = (a: Buffer, b: Buffer): i32 => {
+  public static compare(a: Buffer, b: Buffer): i32 {
     let compareLength = min<i32>(a.length, b.length);
     let result = memory.compare(a.dataStart, b.dataStart, compareLength);
     if (result == 0) {
@@ -32,4 +32,30 @@ export class Buffer extends Uint8Array {
       return result;
     }
   };
+
+  public static isBuffer<T>(value: T): bool {
+    return value instanceof Buffer;
+  }
+
+  readUInt8(offset: i32 = 0): u8 {
+    if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    return load<u8>(this.dataStart + usize(offset));
+  }
+
+  writeUInt8(value: u8, offset: i32 = 0): i32 {
+    if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    store<u8>(this.dataStart + offset, value);
+    return offset + 1;
+  }
+
+  writeInt8(value: i8, offset: i32 = 0): i32 {
+    if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    store<i8>(this.dataStart + offset, value);
+    return offset + 1;
+  }
+
+  readInt8(offset: i32 = 0): i8 {
+    if(<u32>offset >= this.dataLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    return load<i8>(this.dataStart + usize(offset));
+  }
 }
