@@ -89,4 +89,31 @@ describe("buffer", () => {
     //   newBuff.readInt8(5);
     // }).toThrow();
   });
+
+  test("#readInt16LE", () => {
+    let buff = new Buffer(10);
+    buff[0] = 0;
+    buff[1] = 5;
+    buff[2] = 0;
+    expect<i16>(buff.readInt16LE()).toBe(1280);
+    expect<i16>(buff.readInt16LE(1)).toBe(5);
+    // TODO:
+    // expectFn(() => { 
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readInt16LE(0);
+    // }).toThrow();
+  })
+  test("#readInt16BE", () => {
+    let buff = new Buffer(10);
+    buff[0] = 0;
+    buff[1] = 5;
+    buff[2] = 0;
+    expect<i16>(buff.readInt16BE()).toBe(5);
+    expect<i16>(buff.readInt16BE(1)).toBe(1280);
+    // TODO:
+    // expectFn(() => { 
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readInt16BE(0);
+    // }).toThrow();
+  })
 });
