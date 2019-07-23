@@ -54,4 +54,15 @@ export class Buffer extends Uint8Array {
     if(<u32>offset >= this.dataLength - 1) throw new RangeError(E_INDEXOUTOFRANGE);
     return bswap<i16>(load<i16>(this.dataStart + <usize>offset));
   }
+
+  readUInt16LE(offset: i32 = 0): u16 {
+    if(<u32>offset >= this.dataLength - 1) throw new RangeError(E_INDEXOUTOFRANGE);
+    return load<u16>(this.dataStart + <usize>offset);
+  }
+
+  readUInt16BE(offset: i32 = 0): u16 {
+    if(<u32>offset >= this.dataLength - 1) throw new RangeError(E_INDEXOUTOFRANGE);
+    return bswap<u16>(load<u16>(this.dataStart + <usize>offset));
+  }
+
 }
