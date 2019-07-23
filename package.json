@@ -12,14 +12,13 @@
     "url": "https://github.com/AssemblyScript/node/issues"
   },
   "devDependencies": {
-    "@as-pect/core": "^2.2.0",
+    "@as-pect/core": "^2.3.1",
+    "assemblyscript": "github:assemblyscript/assemblyscript",
     "glob": "^7.1.4",
     "wasi": "github:devsnek/node-wasi"
   },
   "scripts": {
     "test": "node tests/node"
   },
-  "dependencies": {
-    "assemblyscript": "github:assemblyscript/assemblyscript"
-  }
+  "dependencies": {}
 }
