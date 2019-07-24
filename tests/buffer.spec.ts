@@ -11,6 +11,12 @@
  */
 import { BLOCK_MAXSIZE } from "rt/common";
 
+function createFrom<T>(values: valueof<T>[]): T {
+  let result = instantiate<T>(values.length);
+  for (let i = 0; i < values.length; i++) result[i] = values[i];
+  return result;
+}
+
 describe("buffer", () => {
   test("#constructor", () => {
     expect<Buffer>(new Buffer(0)).toBeTruthy();
@@ -103,5 +109,19 @@ describe("buffer", () => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readInt8(5);
     // }).toThrow();
+  });
+
+  test("#Hex.encode", () => {
+    let actual = "000102030405060708090a0b0c0d0e0f102030405060708090a0b0c0d0e0f0";
+    let exampleBuffer = createFrom<Buffer>([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0, 0xd0, 0xe0, 0xf0]);
+    let encoded = Buffer.HEX.encode(actual);
+    expect<ArrayBuffer>(encoded).toStrictEqual(exampleBuffer.buffer);
+  });
+
+  test("#Hex.decode", () => {
+    let expected = "000102030405060708090a0b0c0d0e0f102030405060708090a0b0c0d0e0f0";
+    let exampleBuffer = createFrom<Buffer>([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0, 0xd0, 0xe0, 0xf0]);
+    let decoded = Buffer.HEX.decode(exampleBuffer.buffer);
+    expect<string>(decoded).toStrictEqual(expected);
   });
 });

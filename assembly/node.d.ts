@@ -14,3 +14,14 @@ declare class Buffer extends Uint8Array {
   /** Reads a signed integer at the designated offset. */
   readInt8(offset?: i32): i8;
 }
+
+declare namespace Buffer {
+  export namespace HEX {
+    /** Creates an ArrayBuffer from a given string that is encoded in the HEX format. */
+    export function encode(str: string): ArrayBuffer;
+    /** Creates an String from a given ArrayBuffer that is decoded in the HEX format. */
+    export function decode(buffer: ArrayBuffer): string;
+    /** Decodes a block of memory from the given pointer with the given length to a utf16le encoded string in HEX format. */
+    export function decodeUnsafe(ptr: usize, byteLength: i32): string;
+  }
+}
