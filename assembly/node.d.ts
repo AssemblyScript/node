@@ -16,7 +16,15 @@ declare class Buffer extends Uint8Array {
   /** Reads a signed 16-bit integer, stored in Big Endian format at the designated offset. */
   readInt16BE(offset?: i32): i16;
   /** Reads an unsigned 16-bit integer, stored in Little Endian format at the designated offset. */
-  readIntU16LE(offset?: i32): u16;
+  readUInt16LE(offset?: i32): u16;
   /** Reads an unsigned 16-bit integer, stored in Big Endian format at the designated offset. */
-  readIntU16BE(offset?: i32): u16;
+  readUInt16BE(offset?: i32): u16;
+  /** Writes an inputted 16-bit integer at the designated offset, stored in Little Endian format */
+  writeInt16LE(value: i16, offset?: i32): i32;
+  /** Writes an inputted 16-bit integer at the designated offset, stored in Big Endian format */
+  writeInt16BE(value: i16, offset?: i32): i32;
+  /** Writes an inputted unsigned 16-bit integer at the designated offset, stored in Little Endian format */
+  writeUInt16LE(value: u16, offset?: i32): i32;
+  /** Writes an inputted unsigned 16-bit integer at the designated offset, stored in Big Endian format */
+  writeUInt16BE(value: u16, offset?: i32): i32;
 }
