@@ -19,9 +19,9 @@ declare namespace Buffer {
   export namespace HEX {
     /** Creates an ArrayBuffer from a given string that is encoded in the HEX format. */
     export function encode(str: string): ArrayBuffer;
-    /** Creates an String from a given ArrayBuffer that is decoded in the HEX format. */
+    /** Creates a string from a given ArrayBuffer that is decoded into hex format. */
     export function decode(buffer: ArrayBuffer): string;
-    /** Decodes a block of memory from the given pointer with the given length to a utf16le encoded string in HEX format. */
+    /** Decodes a chunk of memory to a utf16le encoded string in hex format. */
     export function decodeUnsafe(ptr: usize, byteLength: i32): string;
   }
 }

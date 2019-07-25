@@ -72,10 +72,9 @@ export namespace Buffer {
       byteCount += ptr;
       while (ptr < byteCount) {
         var char = load<u16>(ptr);
-        if (
-          ((char - 0x30) <= 0x9)
-          || ((char - 0x61) <= 0x5)
-          || ((char - 0x41) <= 0x5)) {
+        if (  ((char - 0x30) <= 0x9)
+           || ((char - 0x61) <= 0x5)
+           || ((char - 0x41) <= 0x5)) {
           ptr += 2;
           continue;
         } else {
@@ -89,7 +88,7 @@ export namespace Buffer {
     export function encode(str: string): ArrayBuffer {
       let bufferLength = byteLength(str);
       // short path: string is not a valid hex string, return a new empty ArrayBuffer
-      if (bufferLength == 0) return changetype<ArrayBuffer>(__retain(__alloc(0, idof<ArrayBuffer>())));
+      if (bufferLength == 0) return changetype<ArrayBuffer>(__alloc(0, idof<ArrayBuffer>()));
 
       // long path: loop over each enociding pair and perform the conversion
       let ptr = changetype<usize>(str);
@@ -99,30 +98,40 @@ export namespace Buffer {
       let outChar = 0;
       for (let i: usize = 0; ptr < byteEnd; i++) {
         let odd = i & 1;
-        b = odd ? (b >>> 16) : load<u32>(ptr);
-        outChar <<= 4;
-        let c = b & 0xFF;
-        if ((c - 0x30) <= 9) {
-          outChar |= c - 0x30;
-        } else if ((c - 0x61) <= 0x5) {
-          outChar |= c - 0x57;
-        } else if (c - 0x41 <= 0x5) {
-          outChar |= c - 0x37;
-        }
         if (odd) {
+          outChar <<= 4;
+          b >>>= 16;
+          if ((b - 0x30) <= 9) {
+            outChar |= b - 0x30;
+          } else if ((b - 0x61) <= 0x5) {
+            outChar |= b - 0x57;
+          } else if (b - 0x41 <= 0x5) {
+            outChar |= b - 0x37;
+          }
           store<u8>(result + (i >> 1), <u8>(outChar & 0xFF));
           ptr += 4;
+        } else {
+          b = load<u32>(ptr);
+          outChar <<= 4;
+          let c = b & 0xFF;
+          if ((c - 0x30) <= 9) {
+            outChar |= c - 0x30;
+          } else if ((c - 0x61) <= 0x5) {
+            outChar |= c - 0x57;
+          } else if (c - 0x41 <= 0x5) {
+            outChar |= c - 0x37;
+          }
         }
       }
       return changetype<ArrayBuffer>(result);
     }
 
-    /** Creates an String from a given ArrayBuffer that is decoded in the HEX format. */
+    /** Creates a string from a given ArrayBuffer that is decoded into hex format. */
     export function decode(buff: ArrayBuffer): string {
       return decodeUnsafe(changetype<usize>(buff), buff.byteLength);
     }
 
-    /** Decodes a block of memory from the given pointer with the given length to a utf16le encoded string in HEX format. */
+    /** Decodes a chunk of memory to a utf16le encoded string in hex format. */
     @unsafe export function decodeUnsafe(ptr: usize, length: i32): string {
       let stringByteLength = length << 2; // length * (2 bytes per char) * (2 chars per input byte)
       let result = __alloc(stringByteLength, idof<String>());
