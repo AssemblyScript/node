@@ -61,41 +61,23 @@ export namespace Buffer {
       return (bottom << 16) | top;
     }
 
-    @inline export function byteFromChars(chars: u32): i32 {
-      let top = chars & 0xFFFF;
-      let bottom = chars >>> 16;
-
-      // get the top byte
-      if (top >= 0x30 && top <= 0x39) top -= 0x30; // 0-9
-      else if (top >= 0x61 && top <= 0x66) top -= 0x57; // a-f
-      else if (top >= 0x41 && top <= 0x46) top -= 0x37; // A-F
-      else return -1;
-
-      // get the bottom byte
-      if (bottom >= 0x30 && bottom <= 0x39) bottom -= 0x30; // 0-9
-      else if (bottom >= 0x61 && bottom <= 0x66) bottom -= 0x57; // a-f
-      else if (bottom >= 0x41 && bottom <= 0x46) bottom -= 0x37; // A-F
-      else return -1;
-
-      return (top << 4) | bottom;
-    }
-
     /** Calculates the byte length of the specified string when encoded as HEX. */
     export function byteLength(str: string): i32 {
       let ptr = changetype<usize>(str);
       let byteCount = changetype<BLOCK>(changetype<usize>(str) - BLOCK_OVERHEAD).rtSize;
+      let length = byteCount >> 2;
       // The string length must be even because the bytes come in pairs of characters two wide
       if (byteCount & 0x3) return 0; // encoding fails and returns an empty ArrayBuffer
 
-      // start length calculation loop
-      let length = 0;
       byteCount += ptr;
-
       while (ptr < byteCount) {
-        let result = byteFromChars(load<u32>(ptr));
-        if (result == -1) return 0; // invalid character
-        length += 1;
-        ptr += 4;
+        var char = load<u16>(ptr);
+        if ((char >= 0x30 && char <= 0x39) || (char >= 0x61 && char <= 0x66) || (char >= 0x41 && char <= 0x46)) {
+          ptr += 2;
+          continue;
+        } else {
+          return 0;
+        }
       }
       return length;
     }
@@ -105,16 +87,45 @@ export namespace Buffer {
       let bufferLength = byteLength(str);
       // short path: string is not a valid hex string, return a new empty ArrayBuffer
       if (bufferLength == 0) return changetype<ArrayBuffer>(__retain(__alloc(0, idof<ArrayBuffer>())));
-      let ptr = changetype<usize>(str);
 
-      // long path: loop over each byte and perform the conversion
+      // long path: loop over each enociding pair and perform the conversion
+      let ptr = changetype<usize>(str);
       let byteEnd = changetype<BLOCK>(changetype<usize>(str) - BLOCK_OVERHEAD).rtSize + ptr;
       let result = __alloc(bufferLength, idof<ArrayBuffer>());
-      let i: usize = 0;
-      while (ptr < byteEnd) {
-        store<u8>(result + i, byteFromChars(load<u32>(ptr)));
-        ptr += 4;
-        i += 1;
+      let b: u32 = 0;
+      let outChar = 0;
+      for (let i: usize = 0; ptr < byteEnd; i++) {
+        let odd = i & 1;
+        b = odd ? (b >>> 16) : load<u32>(ptr);
+        outChar <<= 4;
+        switch (b & 0xFF) {
+          case 0x30: outChar |= 0x0; break;
+          case 0x31: outChar |= 0x1; break;
+          case 0x32: outChar |= 0x2; break;
+          case 0x33: outChar |= 0x3; break;
+          case 0x34: outChar |= 0x4; break;
+          case 0x35: outChar |= 0x5; break;
+          case 0x36: outChar |= 0x6; break;
+          case 0x37: outChar |= 0x7; break;
+          case 0x38: outChar |= 0x8; break;
+          case 0x39: outChar |= 0x9; break;
+          case 0x61: outChar |= 0xa; break;
+          case 0x62: outChar |= 0xb; break;
+          case 0x63: outChar |= 0xc; break;
+          case 0x64: outChar |= 0xd; break;
+          case 0x65: outChar |= 0xe; break;
+          case 0x66: outChar |= 0xf; break;
+          case 0x41: outChar |= 0xa; break;
+          case 0x42: outChar |= 0xb; break;
+          case 0x43: outChar |= 0xc; break;
+          case 0x44: outChar |= 0xd; break;
+          case 0x45: outChar |= 0xe; break;
+          case 0x46: outChar |= 0xf; break;
+        }
+        if (odd) {
+          store<u8>(result + (i >> 1), <u8>(outChar & 0xFF));
+          ptr += 4;
+        }
       }
       return changetype<ArrayBuffer>(result);
     }
