@@ -4,10 +4,14 @@ let calls: i32 = 0;
 
 type i32Callback = (value: i32) => void;
 
+class CustomEventEmitter extends EventEmitter {}
+
+EventEmitter.registerEventCallback<CustomEventEmitter, i32Callback>("data");
+
 describe("events", () => {
   test("events", () => {
-    let t = new EventEmitter();
-    t.on<i32Callback>("data", (value: i32) => {
+    let t = new CustomEventEmitter();
+    t.on<i32Callback>("data", <i32Callback>(value: i32) => {
       calls += 1;
       expect<i32>(value).toBe(42);
     });

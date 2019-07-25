@@ -1,56 +1,50 @@
-import { BLOCK_MAXSIZE, BLOCK, BLOCK_OVERHEAD } from "rt/common";
-import { E_INVALIDLENGTH } from "util/error";
+import { BLOCK_OVERHEAD, BLOCK } from "rt/common";
 
-class EventList {
-  count: usize;
-
-  // adapted from https://github.com/AssemblyScript/assemblyscript/blob/master/std/assembly/array.ts#L11
-  ensureSize(minSize: usize): EventList {
-    let currentSize = changetype<BLOCK>(changetype<usize>(this) - BLOCK_OVERHEAD).rtSize;
-    let byteLength = (minSize + 2) << alignof<usize>();
-    if (byteLength > currentSize) {
-      if (byteLength > BLOCK_MAXSIZE) throw new RangeError(E_INVALIDLENGTH);
-      let oldData = changetype<usize>(this);
-      let newData = __realloc(oldData, byteLength);
-      // don't need to fill because they won't be used
-      // memory.fill(newData + currentSize, 0, byteLength - currentSize);
-      return changetype<EventList>(newData);
-    }
-    return this;
-  }
-}
+class Callback<T> {}
+class Dummy {}
 
 export class EventEmitter {
-  private _events: Map<string, EventList> = new Map<string, EventList>();
-
-  private _ensureEvent(event: string): void {
-    if (!this._events.has(event)) {
-      let byteLength = offsetof<EventList>() + (sizeof<usize>() << 2);
-      let list = changetype<EventList>(__alloc(byteLength, idof<EventList>()));
-      this._events.set(event, list);
+  public static EventMap: Map<i32, Map<string, i32>> = new Map<i32, Map<string, i32>>();
+  public static registerEventCallback<T, U>(event: string): void {
+    if (!isFunction<U>()) {
+      ERROR("Cannot register event callback of type U where U is not a function.");
     }
+    if (!EventEmitter.EventMap.has(idof<T>())) {
+      EventEmitter.EventMap.set(idof<T>(), new Map<string, i32>());
+    }
+    let ClassEvents = EventEmitter.EventMap.get(idof<T>());
+    if (ClassEvents.has(event)) {
+      throw new Error("EventMap already contains a definition for event: " + event);
+    }
+    ClassEvents.set(event, idof<Callback<U>>());
   }
+
+  private _events: Map<string, u32[]> = new Map<string, u32[]>();
 
   public on<T>(event: string, callback: T): EventEmitter {
     if (!isFunction<T>()) {
       ERROR("EventEmitter#on can only be called with a callback of type T where T is a static function.");
     }
-    this._ensureEvent(event);
-    let list = this._events.get(event);
-    list.count += 1;
-    list = list.ensureSize(list.count);
-    store<usize>(changetype<usize>(list) + ((list.count) << alignof<usize>()), changetype<usize>(callback));
+    let rtId = changetype<BLOCK>(changetype<usize>(this) - BLOCK_OVERHEAD).rtId;
+    let EventMap = EventEmitter.EventMap;
+    if (!EventMap.has(rtId)) throw new Error("Cannot attach events to an EventEmitter with no EventMap definitions.");
+    let ClassEvents = EventMap.get(rtId);
+    if (!ClassEvents.has(event)) throw new Error("Event does not exist: " + event);
+    let cbId = idof<Callback<T>>();
+    let classEventCallbackID = ClassEvents.get(event);
+    assert(cbId == classEventCallbackID);
+    if (!this._events.has(event)) this._events.set(event, new Array<u32>());
+    let eventList = this._events.get(event);
+    eventList.push(changetype<u32>(callback));
     return this;
   }
 
   public emit<T>(event: string, data: T): EventEmitter {
     if (this._events.has(event)) {
       let list = this._events.get(event);
-      let count = list.count;
-      let start = changetype<usize>(list) + sizeof<usize>();
-      for (let i: usize = 0; i < count; i++) {
-        call_indirect(<u32>load<usize>(start), data);
-        start += sizeof<usize>();
+      let length = list.length;
+      for (let i: i32 = 0; i < length; i++) {
+        call_indirect(unchecked(list[i]), data);
       }
     }
     return this;
