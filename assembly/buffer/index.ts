@@ -72,7 +72,10 @@ export namespace Buffer {
       byteCount += ptr;
       while (ptr < byteCount) {
         var char = load<u16>(ptr);
-        if ((char >= 0x30 && char <= 0x39) || (char >= 0x61 && char <= 0x66) || (char >= 0x41 && char <= 0x46)) {
+        if (
+          ((char - 0x30) <= 0x9)
+          || ((char - 0x61) <= 0x5)
+          || ((char - 0x41) <= 0x5)) {
           ptr += 2;
           continue;
         } else {
@@ -98,29 +101,13 @@ export namespace Buffer {
         let odd = i & 1;
         b = odd ? (b >>> 16) : load<u32>(ptr);
         outChar <<= 4;
-        switch (b & 0xFF) {
-          case 0x30: outChar |= 0x0; break;
-          case 0x31: outChar |= 0x1; break;
-          case 0x32: outChar |= 0x2; break;
-          case 0x33: outChar |= 0x3; break;
-          case 0x34: outChar |= 0x4; break;
-          case 0x35: outChar |= 0x5; break;
-          case 0x36: outChar |= 0x6; break;
-          case 0x37: outChar |= 0x7; break;
-          case 0x38: outChar |= 0x8; break;
-          case 0x39: outChar |= 0x9; break;
-          case 0x61: outChar |= 0xa; break;
-          case 0x62: outChar |= 0xb; break;
-          case 0x63: outChar |= 0xc; break;
-          case 0x64: outChar |= 0xd; break;
-          case 0x65: outChar |= 0xe; break;
-          case 0x66: outChar |= 0xf; break;
-          case 0x41: outChar |= 0xa; break;
-          case 0x42: outChar |= 0xb; break;
-          case 0x43: outChar |= 0xc; break;
-          case 0x44: outChar |= 0xd; break;
-          case 0x45: outChar |= 0xe; break;
-          case 0x46: outChar |= 0xf; break;
+        let c = b & 0xFF;
+        if ((c - 0x30) <= 9) {
+          outChar |= c - 0x30;
+        } else if ((c - 0x61) <= 0x5) {
+          outChar |= c - 0x57;
+        } else if (c - 0x41 <= 0x5) {
+          outChar |= c - 0x37;
         }
         if (odd) {
           store<u8>(result + (i >> 1), <u8>(outChar & 0xFF));
