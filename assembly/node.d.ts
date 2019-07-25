@@ -17,7 +17,7 @@ declare class Buffer extends Uint8Array {
 
 declare namespace Buffer {
   export namespace HEX {
-    /** Creates an ArrayBuffer from a given string that is encoded in the HEX format. */
+    /** Creates an ArrayBuffer from a given string that is encoded in the hex format. */
     export function encode(str: string): ArrayBuffer;
     /** Creates a string from a given ArrayBuffer that is decoded into hex format. */
     export function decode(buffer: ArrayBuffer): string;
