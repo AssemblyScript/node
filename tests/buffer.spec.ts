@@ -99,7 +99,7 @@ describe("buffer", () => {
     let result = create<Buffer>([0x09, 0x0, 0x0, 0x0, 0xFD]);
     expect<Buffer>(buff).toStrictEqual(result);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeInt8(5,10);
     // }).toThrow();    
@@ -112,7 +112,7 @@ describe("buffer", () => {
     let result = create<Buffer>([0x04, 0x0, 0x0, 0x0, 0xFC]);
     expect<Buffer>(buff).toStrictEqual(result);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeUInt8(5,10);
     // }).toThrow();    
@@ -123,7 +123,7 @@ describe("buffer", () => {
     expect<i16>(buff.readInt16LE()).toBe(1280);
     expect<i16>(buff.readInt16LE(1)).toBe(5);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readInt16LE(0);
     // }).toThrow();
@@ -134,7 +134,7 @@ describe("buffer", () => {
     expect<i16>(buff.readInt16BE()).toBe(5);
     expect<i16>(buff.readInt16BE(1)).toBe(1280);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readInt16BE(0);
     // }).toThrow();
@@ -145,7 +145,7 @@ describe("buffer", () => {
     expect<u16>(buff.readUInt16LE()).toBe(1280);
     expect<u16>(buff.readUInt16LE(1)).toBe(5);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readUInt16LE(0);
     // }).toThrow();
@@ -156,7 +156,7 @@ describe("buffer", () => {
     expect<i16>(buff.readUInt16BE()).toBe(5);
     expect<i16>(buff.readUInt16BE(1)).toBe(1280);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readUInt16BE(0);
     // }).toThrow();
@@ -169,7 +169,7 @@ describe("buffer", () => {
     let result = create<Buffer>([0x05, 0x0, 0x0, 0x5]);
     expect<Buffer>(buff).toStrictEqual(result);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeInt16LE(0);
     // }).toThrow();
@@ -182,7 +182,7 @@ describe("buffer", () => {
     let result = create<Buffer>([0x05, 0x0, 0x0, 0x5]);
     expect<Buffer>(buff).toStrictEqual(result);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeInt16BE(0);
     // }).toThrow();
@@ -195,7 +195,7 @@ describe("buffer", () => {
     let result = create<Buffer>([0x05, 0x0, 0x0, 0x5]);
     expect<Buffer>(buff).toStrictEqual(result);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeUInt16LE(0);
     // }).toThrow();
@@ -208,7 +208,7 @@ describe("buffer", () => {
     let result = create<Buffer>([0x05, 0x0, 0x0, 0x5]);
     expect<Buffer>(buff).toStrictEqual(result);
     // TODO:
-    // expectFn(() => { 
+    // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeUInt16BE(0);
     // }).toThrow();
