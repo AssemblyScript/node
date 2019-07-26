@@ -127,7 +127,7 @@ describe("buffer", () => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readInt16LE(0);
     // }).toThrow();
-  })
+  });
 
   test("#readInt16BE", () => {
     let buff = create<Buffer>([0x0,0x05,0x0]);
@@ -138,7 +138,7 @@ describe("buffer", () => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readInt16BE(0);
     // }).toThrow();
-  })
+  });
 
   test("#readUInt16LE", () => {
     let buff = create<Buffer>([0x0,0x05,0x0]);
@@ -149,7 +149,7 @@ describe("buffer", () => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readUInt16LE(0);
     // }).toThrow();
-  })
+  });
 
   test("#readUInt16BE", () => {
     let buff = create<Buffer>([0x0,0x05,0x0]);
@@ -160,7 +160,7 @@ describe("buffer", () => {
     //   let newBuff = new Buffer(1);
     //   newBuff.readUInt16BE(0);
     // }).toThrow();
-  })
+  });
 
   test("#writeInt16LE", () => {
     let buff = new Buffer(4);
@@ -173,7 +173,8 @@ describe("buffer", () => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeInt16LE(0);
     // }).toThrow();
-  })
+  });
+
   test("#writeInt16BE", () => {
     let buff = new Buffer(4);
     expect<i32>(buff.writeInt16BE(1280)).toBe(2);
@@ -185,7 +186,8 @@ describe("buffer", () => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeInt16BE(0);
     // }).toThrow();
-  })
+  });
+
   test("#writeUInt16LE", () => {
     let buff = new Buffer(4);
     expect<i32>(buff.writeUInt16LE(5)).toBe(2);
@@ -197,7 +199,8 @@ describe("buffer", () => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeUInt16LE(0);
     // }).toThrow();
-  })
+  });
+
   test("#writeUInt16BE", () => {
     let buff = new Buffer(4);
     expect<i32>(buff.writeUInt16BE(1280)).toBe(2);
@@ -209,5 +212,5 @@ describe("buffer", () => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeUInt16BE(0);
     // }).toThrow();
-  })
+  });
 });
