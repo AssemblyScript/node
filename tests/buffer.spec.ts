@@ -68,13 +68,10 @@ describe("buffer", () => {
   });
 
   test("#readInt8", () => {
-    let buff = new Buffer(10);
-    buff[0] = 5;
-    buff[9] = 255;
-    expect<i8>(buff.readInt8(0)).toBe(5);
+    let buff = create<Buffer>([0x5,0x0,0x0,0x0,0xFF]);
     expect<i8>(buff.readInt8()).toBe(5);
     // Testing offset, and casting between u8 and i8.
-    expect<i8>(buff.readInt8(9)).toBe(-1);
+    expect<i8>(buff.readInt8(4)).toBe(-1);
     // TODO:
     // expectFn(() => {
     //   let newBuff = new Buffer(1);
@@ -83,14 +80,11 @@ describe("buffer", () => {
   });
 
   test("#readUInt8", () => {
-    let buff = new Buffer(10);
-    buff[0] = -2;
-    buff[9] = 47;
+    let buff = create<Buffer>([0xFE,0x0,0x0,0x0,0x2F]);
     // Testing casting between u8 and i8.
-    expect<u8>(buff.readUInt8(0)).toBe(254);
     expect<u8>(buff.readUInt8()).toBe(254);
     // Testing offset
-    expect<u8>(buff.readUInt8(9)).toBe(47);
+    expect<u8>(buff.readUInt8(4)).toBe(47);
     // TODO:
     // expectFn(() => {
     //   let newBuff = new Buffer(1);
@@ -125,10 +119,7 @@ describe("buffer", () => {
   });  
 
   test("#readInt16LE", () => {
-    let buff = new Buffer(10);
-    buff[0] = 0;
-    buff[1] = 5;
-    buff[2] = 0;
+    let buff = create<Buffer>([0x0,0x05,0x0]);
     expect<i16>(buff.readInt16LE()).toBe(1280);
     expect<i16>(buff.readInt16LE(1)).toBe(5);
     // TODO:
@@ -139,10 +130,7 @@ describe("buffer", () => {
   })
 
   test("#readInt16BE", () => {
-    let buff = new Buffer(10);
-    buff[0] = 0;
-    buff[1] = 5;
-    buff[2] = 0;
+    let buff = create<Buffer>([0x0,0x05,0x0]);
     expect<i16>(buff.readInt16BE()).toBe(5);
     expect<i16>(buff.readInt16BE(1)).toBe(1280);
     // TODO:
@@ -153,10 +141,7 @@ describe("buffer", () => {
   })
 
   test("#readUInt16LE", () => {
-    let buff = new Buffer(10);
-    buff[0] = 0;
-    buff[1] = 5;
-    buff[2] = 0;
+    let buff = create<Buffer>([0x0,0x05,0x0]);
     expect<u16>(buff.readUInt16LE()).toBe(1280);
     expect<u16>(buff.readUInt16LE(1)).toBe(5);
     // TODO:
@@ -167,10 +152,7 @@ describe("buffer", () => {
   })
 
   test("#readUInt16BE", () => {
-    let buff = new Buffer(10);
-    buff[0] = 0;
-    buff[1] = 5;
-    buff[2] = 0;
+    let buff = create<Buffer>([0x0,0x05,0x0]);
     expect<i16>(buff.readUInt16BE()).toBe(5);
     expect<i16>(buff.readUInt16BE(1)).toBe(1280);
     // TODO:
