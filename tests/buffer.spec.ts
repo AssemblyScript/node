@@ -260,7 +260,7 @@ describe("buffer", () => {
 
   test("#writeInt32LE", () => {
     let buff = new Buffer(8);
-    expect<i32>(buff.writeInt32LE(3735928559)).toBe(4);
+    expect<i32>(buff.writeInt32LE(-559038737)).toBe(4);
     expect<i32>(buff.writeInt32LE(283033613,4)).toBe(8);
     let result = create<Buffer>([0xEF,0xBE,0xAD,0xDE,0x0d,0xc0,0xde,0x10]);
     expect<Buffer>(buff).toStrictEqual(result);
@@ -273,7 +273,7 @@ describe("buffer", () => {
 
   test("#writeInt32BE", () => {
     let buff = new Buffer(8);
-    expect<i32>(buff.writeInt32BE(3735928559)).toBe(4);
+    expect<i32>(buff.writeInt32BE(-559038737)).toBe(4);
     expect<i32>(buff.writeInt32BE(283033613,4)).toBe(8);
     let result = create<Buffer>([0xDE,0xAD,0xBE,0xEF,0x10,0xde,0xc0,0x0d]);
     expect<Buffer>(buff).toStrictEqual(result);
