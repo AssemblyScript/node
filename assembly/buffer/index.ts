@@ -92,4 +92,48 @@ export class Buffer extends Uint8Array {
     store<u16>(this.dataStart + offset, bswap<u16>(value));
     return offset + 2;
   }
+
+  readInt32LE(offset: i32 = 0): i32 {
+    if(i32(offset < 0) | i32(<u32>offset + 4 > this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
+    return load<i32>(this.dataStart + <usize>offset);
+  }
+
+  readInt32BE(offset: i32 = 0): i32 {
+    if(i32(offset < 0) | i32(<u32>offset + 4 > this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
+    return bswap<i32>(load<i32>(this.dataStart + <usize>offset));
+  }
+
+  readUInt32LE(offset: i32 = 0): u32 {
+    if(i32(offset < 0) | i32(<u32>offset + 4 > this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
+    return load<u32>(this.dataStart + <usize>offset);
+  }
+
+  readUInt32BE(offset: i32 = 0): u32 {
+    if(i32(offset < 0) | i32(<u32>offset + 4 > this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
+    return bswap<u32>(load<u32>(this.dataStart + <usize>offset));
+  }
+
+  writeInt32LE(value: i32, offset: i32 = 0): i32 {
+    if(i32(offset < 0) | i32(<u32>offset + 4 > this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
+    store<i32>(this.dataStart + offset, value);
+    return offset + 4;
+  }
+
+  writeInt32BE(value: i32, offset: i32 = 0): i32 {
+    if(i32(offset < 0) | i32(<u32>offset + 4 > this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
+    store<i32>(this.dataStart + offset, bswap<i32>(value));
+    return offset + 4;
+  }
+
+  writeUInt32LE(value: u32, offset: i32 = 0): i32 {
+    if(i32(offset < 0) | i32(<u32>offset + 4 > this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
+    store<u32>(this.dataStart + offset, value);
+    return offset + 4;
+  }
+
+  writeUInt32BE(value: u32, offset: i32 = 0): i32 {
+    if(i32(offset < 0) | i32(<u32>offset + 4 > this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
+    store<u32>(this.dataStart + offset, bswap<u32>(value));
+    return offset + 4;
+  }
 }
