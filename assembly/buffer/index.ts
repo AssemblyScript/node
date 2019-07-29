@@ -27,6 +27,19 @@ export class Buffer extends Uint8Array {
     return value instanceof Buffer;
   }
 
+  // Adapted from https://github.com/AssemblyScript/assemblyscript/blob/master/std/assembly/typedarray.ts
+  public subarray(begin: i32 = 0, end: i32 = 0x7fffffff): Buffer {
+    var len = <i32>this.dataLength;
+    begin = begin < 0 ? max(len + begin, 0) : min(begin, len);
+    end   = end   < 0 ? max(len + end,   0) : min(end,   len);
+    end   = max(end, begin);
+    var out = changetype<Buffer>(__alloc(offsetof<Buffer>(), idof<Buffer>())); // retains
+    out.data = this.data; // retains
+    out.dataStart = this.dataStart + <usize>begin;
+    out.dataLength = end - begin;
+    return out;
+  }
+
   readInt8(offset: i32 = 0): i8 {
     if(i32(offset < 0) | i32(<u32>offset >= this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
     return load<i8>(this.dataStart + <usize>offset);
