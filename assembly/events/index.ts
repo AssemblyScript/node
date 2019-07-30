@@ -1,11 +1,13 @@
 import { BLOCK_OVERHEAD, BLOCK } from "rt/common";
 
-
-export class EventEmitter {
+export abstract class EventEmitter {
   public static EventMap: Map<i32, Map<string, u64>> = new Map<i32, Map<string, u64>>();
-  public static registerEventCallback<T, U>(event: string, length: u32 = 1): void {
+  public static registerEventCallback<T, U>(event: string): void {
     if (!isFunction<U>()) {
       ERROR("Cannot register event callback of type U where U is not a function.");
+    }
+    if (!isVoid<ReturnType<U>>()) {
+      ERROR("Cannot register event callback of type U where ReturnType<U> is not void.");
     }
     if (!EventEmitter.EventMap.has(idof<T>())) {
       EventEmitter.EventMap.set(idof<T>(), new Map<string, u64>());
@@ -14,9 +16,8 @@ export class EventEmitter {
     if (ClassEvents.has(event)) {
       throw new Error("EventMap already contains a definition for event: " + event);
     }
-    let definition: u64 = <u64>idof<U>() | (<u64>length << 32);
+    let definition: u64 = <u64>idof<U>() | (<u64>ParameterCount<U>() << 32);
     ClassEvents.set(event, definition);
-    log<u64>(definition);
   }
 
   private _events: Map<string, u32[]> = new Map<string, u32[]>();
@@ -30,10 +31,9 @@ export class EventEmitter {
     if (!EventMap.has(rtId)) throw new Error("Cannot attach events to an EventEmitter with no EventMap definitions.");
     let ClassEvents = EventMap.get(rtId);
     if (!ClassEvents.has(event)) throw new Error("Event does not exist: " + event);
-    let cbId = idof<T>();
     let classEventSignature = ClassEvents.get(event);
     let classEventCallbackID = <u32>(classEventSignature & 0xFFFFFFFF);
-    assert(cbId == classEventCallbackID);
+    assert(idof<T>() == classEventCallbackID);
     if (!this._events.has(event)) this._events.set(event, new Array<u32>());
     let eventList = this._events.get(event);
     eventList.push(changetype<u32>(callback));

@@ -6,8 +6,8 @@ type i32Callback = (a: i32) => void;
 type i64Callback = (a: i64, b: i64) => void;
 class CustomEventEmitter extends EventEmitter {}
 
-EventEmitter.registerEventCallback<CustomEventEmitter, i32Callback>("data", 1);
-EventEmitter.registerEventCallback<CustomEventEmitter, i64Callback>("data2", 2);
+EventEmitter.registerEventCallback<CustomEventEmitter, i32Callback>("data");
+EventEmitter.registerEventCallback<CustomEventEmitter, i64Callback>("data2");
 
 describe("events", () => {
   test("events", () => {
@@ -17,7 +17,7 @@ describe("events", () => {
       calls += 1;
       expect<i32>(wrongName).toBe(42);
     });
-    t.emit<i32>("data", 42);
+    t.emit<i32>("data", 42,);
     t.emit<i32>("data", 42);
     t.emit<i32>("data", 42);
     expect<i32>(calls).toBe(3);
