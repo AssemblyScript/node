@@ -3,29 +3,18 @@ import { BLOCK_OVERHEAD, BLOCK } from "rt/common";
 export abstract class EventEmitter {
   public static EventMap: Map<i32, Map<string, u64>> = new Map<i32, Map<string, u64>>();
   public static registerEventCallback<T, U>(event: string): void {
-    if (!isFunction<U>()) {
-      ERROR("Cannot register event callback of type U where U is not a function.");
-    }
-    if (!isVoid<ReturnType<U>>()) {
-      ERROR("Cannot register event callback of type U where ReturnType<U> is not void.");
-    }
-    if (!EventEmitter.EventMap.has(idof<T>())) {
-      EventEmitter.EventMap.set(idof<T>(), new Map<string, u64>());
-    }
+    if (!isFunction<U>()) ERROR("Cannot register event callback of type U where U is not a function.");
+    if (!isVoid<ReturnType<U>>()) ERROR("Cannot register event callback of type U where ReturnType<U> is not void.");
+    if (!EventEmitter.EventMap.has(idof<T>())) EventEmitter.EventMap.set(idof<T>(), new Map<string, u64>());
     let ClassEvents = EventEmitter.EventMap.get(idof<T>());
-    if (ClassEvents.has(event)) {
-      throw new Error("EventMap already contains a definition for event: " + event);
-    }
-    let definition: u64 = <u64>idof<U>() | (<u64>ParameterCount<U>() << 32);
-    ClassEvents.set(event, definition);
+    if (ClassEvents.has(event)) throw new Error("EventMap already contains a definition for event: " + event);
+    ClassEvents.set(event, <u64>idof<U>() | (<u64>lengthof<U>() << 32));
   }
 
   private _events: Map<string, u32[]> = new Map<string, u32[]>();
 
   public on<T>(event: string, callback: T): EventEmitter {
-    if (!isFunction<T>()) {
-      ERROR("EventEmitter#on can only be called with a callback of type T where T is a static function.");
-    }
+    if (!isFunction<T>()) ERROR("EventEmitter#on can only be called with a callback of type T where T is a static function.");
     let rtId = changetype<BLOCK>(changetype<usize>(this) - BLOCK_OVERHEAD).rtId;
     let EventMap = EventEmitter.EventMap;
     if (!EventMap.has(rtId)) throw new Error("Cannot attach events to an EventEmitter with no EventMap definitions.");
