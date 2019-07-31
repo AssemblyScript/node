@@ -30,3 +30,12 @@ declare class Buffer extends Uint8Array {
   /** Writes an inputted unsigned 16-bit integer at the designated offset, stored in Big Endian format */
   writeUInt16BE(value: u16, offset?: i32): i32;
 }
+
+export abstract class EventEmitter {
+  /** Call this function globally to setup a callback on your EventEmitter type `T`, with callback type `U`, and eventName `event`. */
+  public static registerEventCallback<T, U>(event: string): void;
+  /** Register a callback event of type `T` with eventName `event`.  Multiple calls passing the same combination of eventName and listener will result in the listener being added, and called, multiple times. */
+  public on<T>(event: string, callback: T): this;
+  /** Emit a callback event with the given parameters (up to 10.) */
+  public emit<T extends any[]>(...args: T): this;
+}
