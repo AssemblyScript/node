@@ -12,9 +12,12 @@ export class Buffer extends Uint8Array {
     return new Buffer(size);
   }
 
-  public static concat(items: Buffer[], length: i32): Buffer {
+  public static concat(items: Array<Buffer>, length: i32): Buffer {
+    // assert the list itself isn't null
+    assert(items != null);
+
     let size: usize = 0;
-    let itemCount = usize(items.length);
+    let itemCount = <usize>items.length;
     let itemsDataStart = items.dataStart;
 
     for (let i: usize = 0; i < itemCount; i++) {
@@ -22,8 +25,9 @@ export class Buffer extends Uint8Array {
       if (item == 0) continue;
       size += <usize>load<u32>(item, offsetof<Uint8Array>("dataLength"));
     }
-    size = min<usize>(usize(length), size);
-    assert(items);
+
+    // account for passed concat buffer length
+    size = min<usize>(<usize>length, size);
 
     let buffer = __alloc(size, idof<ArrayBuffer>());
     let result = changetype<Buffer>(__alloc(offsetof<Buffer>(), idof<Buffer>()));
@@ -33,7 +37,7 @@ export class Buffer extends Uint8Array {
     let start: usize = result.dataStart;
     for (let i: usize = 0; i < itemCount && size > 0; i++) {
       let item = load<usize>(itemsDataStart + (i << alignof<usize>()));
-      if (item == 0) continue;
+      if (item == null) continue;
       let count = min<u32>(size, <usize>load<u32>(item, offsetof<Uint8Array>("dataLength")));
       memory.copy(start, load<usize>(item, offsetof<Uint8Array>("dataStart")), count);
       start += count;
