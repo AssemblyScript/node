@@ -54,3 +54,14 @@ declare class Buffer extends Uint8Array {
   /** Writes an inputted 32-bit float at the designated offset, stored in Big Endian format */
   writeFloatBE(value: f32, offset?: i32): i32;
 }
+
+declare namespace Buffer {
+  export namespace HEX {
+    /** Creates an ArrayBuffer from a given string that is encoded in the hex format. */
+    export function encode(str: string): ArrayBuffer;
+    /** Creates a string from a given ArrayBuffer that is decoded into hex format. */
+    export function decode(buffer: ArrayBuffer): string;
+    /** Decodes a chunk of memory to a utf16le encoded string in hex format. */
+    export function decodeUnsafe(ptr: usize, byteLength: i32): string;
+  }
+}
