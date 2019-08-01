@@ -139,7 +139,7 @@ export class Buffer extends Uint8Array {
 
   readFloatLE(offset: i32 = 0): f32 {
     if(i32(offset < 0) | i32(<u32>offset + 4 > this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
-    return reinterpret<f32>(load<i32>(this.dataStart + <usize>offset));
+    return load<f32>(this.dataStart + <usize>offset);
   }
 
   readFloatBE(offset: i32 = 0): f32 {
@@ -149,7 +149,7 @@ export class Buffer extends Uint8Array {
 
   writeFloatLE(value: f32, offset: i32 = 0): i32 {
     if(i32(offset < 0) | i32(<u32>offset + 4 > this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
-    store<i32>(this.dataStart + offset, reinterpret<i32>(value));
+    store<f32>(this.dataStart + offset, value);
     return offset + 4;
   }
 
