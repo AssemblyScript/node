@@ -102,7 +102,7 @@ describe("buffer", () => {
     // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeInt8(5,10);
-    // }).toThrow();    
+    // }).toThrow();
   });
 
   test("#writeUInt8", () => {
@@ -115,8 +115,8 @@ describe("buffer", () => {
     // expectFn(() => {
     //   let newBuff = new Buffer(1);
     //   newBuff.writeUInt8(5,10);
-    // }).toThrow();    
-  });  
+    // }).toThrow();
+  });
 
   test("#readInt16LE", () => {
     let buff = create<Buffer>([0x0,0x05,0x0]);
@@ -214,6 +214,36 @@ describe("buffer", () => {
     // }).toThrow();
   });
 
+  test("#subarray", () => {
+    let example = create<Buffer>([1, 2, 3, 4, 5, 6, 7, 8]);
+
+    // no parameters means copy the Buffer
+    let actual = example.subarray();
+    expect<Buffer>(actual).toStrictEqual(example);
+    expect<ArrayBuffer>(actual.buffer).toBe(example.buffer); // should use the same buffer
+
+    // start at offset 5
+    actual = example.subarray(5);
+    let expected = create<Buffer>([6, 7, 8]);
+    // trace("length", 1, expected.length);
+    expect<Buffer>(actual).toStrictEqual(expected);
+
+    // negative start indicies, start at (8 - 5)
+    actual = example.subarray(-5);
+    expected = create<Buffer>([4, 5, 6, 7, 8]);
+    expect<Buffer>(actual).toStrictEqual(expected);
+
+    // two parameters
+    actual = example.subarray(2, 6);
+    expected = create<Buffer>([3, 4, 5, 6]);
+    expect<Buffer>(actual).toStrictEqual(expected);
+
+    // negative end index
+    actual = example.subarray(4, -1);
+    expected = create<Buffer>([5, 6, 7]);
+    expect<Buffer>(actual).toStrictEqual(expected);
+  });
+                       
   test("#Hex.encode", () => {
     let actual = "000102030405060708090a0b0c0d0e0f102030405060708090a0b0c0d0e0f0";
     let exampleBuffer = create<Buffer>([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0, 0xd0, 0xe0, 0xf0]);
