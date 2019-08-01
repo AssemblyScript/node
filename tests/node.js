@@ -109,9 +109,7 @@ function runTest(file, type, binary, wat) {
     + "." + type +  ".wat";
 
   // should not block testing
-  fs.writeFile(watPath, wat, (err) => {
-    if (err) console.warn(err);
-  });
+  fs.writeFileSync(watPath, wat);
 
   const context = new TestContext({
     fileName: file,
