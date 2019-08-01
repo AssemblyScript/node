@@ -12,6 +12,15 @@
 import { BLOCK_MAXSIZE } from "rt/common";
 import { INSPECT_MAX_BYTES } from "buffer";
 
+// Helper function to quickly create a Buffer from an array.
+//@ts-ignore
+function create<T>(values: valueof<T>[]): T {
+  let result = instantiate<T>(values.length);
+  //@ts-ignore
+  for (let i = 0; i < values.length; i++) result[i] = values[i];
+  return result;
+}
+
 describe("buffer", () => {
   test("#constructor", () => {
     expect<Buffer>(new Buffer(0)).toBeTruthy();
@@ -59,15 +68,24 @@ describe("buffer", () => {
     expect<bool>(Buffer.isBuffer<Buffer | null>(null)).toBeFalsy();
   });
 
+  test("#readInt8", () => {
+    let buff = create<Buffer>([0x5,0x0,0x0,0x0,0xFF]);
+    expect<i8>(buff.readInt8()).toBe(5);
+    // Testing offset, and casting between u8 and i8.
+    expect<i8>(buff.readInt8(4)).toBe(-1);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readInt8(5);
+    // }).toThrow();
+  });
+
   test("#readUInt8", () => {
-    let buff = new Buffer(10);
-    buff[0] = -2;
-    buff[9] = 47;
+    let buff = create<Buffer>([0xFE,0x0,0x0,0x0,0x2F]);
     // Testing casting between u8 and i8.
-    expect<u8>(buff.readUInt8(0)).toBe(254);
     expect<u8>(buff.readUInt8()).toBe(254);
     // Testing offset
-    expect<u8>(buff.readUInt8(9)).toBe(47);
+    expect<u8>(buff.readUInt8(4)).toBe(47);
     // TODO:
     // expectFn(() => {
     //   let newBuff = new Buffer(1);
@@ -75,36 +93,54 @@ describe("buffer", () => {
     // }).toThrow();
   });
 
-  test("#writeUInt8", () => {
-    let buff = new Buffer(5);
-    expect<i32>(buff.writeUInt8(4)).toBe(1);
-    expect<i32>(buff.writeUInt8(252,4)).toBe(5);
-    expect<u8>(buff[0]).toBe(4);
-    expect<u8>(buff[4]).toBe(252);
-  });
-
   test("#writeInt8", () => {
     let buff = new Buffer(5);
     expect<i32>(buff.writeInt8(9)).toBe(1);
     expect<i32>(buff.writeInt8(-3,4)).toBe(5);
-    expect<i8>(buff[0]).toBe(9);
-    expect<i8>(buff[4]).toBe(-3);
-  });
-
-  test("#readInt8", () => {
-    let buff = new Buffer(10);
-    buff[0] = 5;
-    buff[9] = 255;
-    expect<i8>(buff.readInt8(0)).toBe(5);
-    expect<i8>(buff.readInt8()).toBe(5);
-    // Testing offset, and casting between u8 and i8.
-    expect<i8>(buff.readInt8(9)).toBe(-1);
+    let result = create<Buffer>([0x09, 0x0, 0x0, 0x0, 0xFD]);
+    expect<Buffer>(buff).toStrictEqual(result);
     // TODO:
     // expectFn(() => {
     //   let newBuff = new Buffer(1);
-    //   newBuff.readInt8(5);
+    //   newBuff.writeInt8(5,10);
     // }).toThrow();
   });
+
+  test("#writeUInt8", () => {
+    let buff = new Buffer(5);
+    expect<i32>(buff.writeUInt8(4)).toBe(1);
+    expect<i32>(buff.writeUInt8(252,4)).toBe(5);
+    let result = create<Buffer>([0x04, 0x0, 0x0, 0x0, 0xFC]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeUInt8(5,10);
+    // }).toThrow();
+  });
+
+  test("#readInt16LE", () => {
+    let buff = create<Buffer>([0x0,0x05,0x0]);
+    expect<i16>(buff.readInt16LE()).toBe(1280);
+    expect<i16>(buff.readInt16LE(1)).toBe(5);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readInt16LE(0);
+    // }).toThrow();
+  });
+
+  test("#readInt16BE", () => {
+    let buff = create<Buffer>([0x0,0x05,0x0]);
+    expect<i16>(buff.readInt16BE()).toBe(5);
+    expect<i16>(buff.readInt16BE(1)).toBe(1280);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readInt16BE(0);
+    // }).toThrow();
+  });
+
 
   test("#inspect", () => {
     let buff = new Buffer(16);
@@ -118,5 +154,123 @@ describe("buffer", () => {
     buff = new Buffer(0);
     result = buff.inspect()
     expect<string>(result).toBe("<Buffer >");
+  });
+
+  test("#readUInt16LE", () => {
+    let buff = create<Buffer>([0x0,0x05,0x0]);
+    expect<u16>(buff.readUInt16LE()).toBe(1280);
+    expect<u16>(buff.readUInt16LE(1)).toBe(5);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readUInt16LE(0);
+    // }).toThrow();
+  });
+
+  test("#readUInt16BE", () => {
+    let buff = create<Buffer>([0x0,0x05,0x0]);
+    expect<i16>(buff.readUInt16BE()).toBe(5);
+    expect<i16>(buff.readUInt16BE(1)).toBe(1280);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readUInt16BE(0);
+    // }).toThrow();
+  });
+
+  test("#writeInt16LE", () => {
+    let buff = new Buffer(4);
+    expect<i32>(buff.writeInt16LE(5)).toBe(2);
+    expect<i32>(buff.writeInt16LE(1280,2)).toBe(4);
+    let result = create<Buffer>([0x05, 0x0, 0x0, 0x5]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeInt16LE(0);
+    // }).toThrow();
+  });
+
+  test("#writeInt16BE", () => {
+    let buff = new Buffer(4);
+    expect<i32>(buff.writeInt16BE(1280)).toBe(2);
+    expect<i32>(buff.writeInt16BE(5,2)).toBe(4);
+    let result = create<Buffer>([0x05, 0x0, 0x0, 0x5]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeInt16BE(0);
+    // }).toThrow();
+  });
+
+  test("#writeUInt16LE", () => {
+    let buff = new Buffer(4);
+    expect<i32>(buff.writeUInt16LE(5)).toBe(2);
+    expect<i32>(buff.writeUInt16LE(1280,2)).toBe(4);
+    let result = create<Buffer>([0x05, 0x0, 0x0, 0x5]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeUInt16LE(0);
+    // }).toThrow();
+  });
+
+  test("#writeUInt16BE", () => {
+    let buff = new Buffer(4);
+    expect<i32>(buff.writeUInt16BE(1280)).toBe(2);
+    expect<i32>(buff.writeUInt16BE(5,2)).toBe(4);
+    let result = create<Buffer>([0x05, 0x0, 0x0, 0x5]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeUInt16BE(0);
+    // }).toThrow();
+  });
+
+  test("#subarray", () => {
+    let example = create<Buffer>([1, 2, 3, 4, 5, 6, 7, 8]);
+
+    // no parameters means copy the Buffer
+    let actual = example.subarray();
+    expect<Buffer>(actual).toStrictEqual(example);
+    expect<ArrayBuffer>(actual.buffer).toBe(example.buffer); // should use the same buffer
+
+    // start at offset 5
+    actual = example.subarray(5);
+    let expected = create<Buffer>([6, 7, 8]);
+    // trace("length", 1, expected.length);
+    expect<Buffer>(actual).toStrictEqual(expected);
+
+    // negative start indicies, start at (8 - 5)
+    actual = example.subarray(-5);
+    expected = create<Buffer>([4, 5, 6, 7, 8]);
+    expect<Buffer>(actual).toStrictEqual(expected);
+
+    // two parameters
+    actual = example.subarray(2, 6);
+    expected = create<Buffer>([3, 4, 5, 6]);
+    expect<Buffer>(actual).toStrictEqual(expected);
+
+    // negative end index
+    actual = example.subarray(4, -1);
+    expected = create<Buffer>([5, 6, 7]);
+    expect<Buffer>(actual).toStrictEqual(expected);
+  });
+
+  test("#Hex.encode", () => {
+    let actual = "000102030405060708090a0b0c0d0e0f102030405060708090a0b0c0d0e0f0";
+    let exampleBuffer = create<Buffer>([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0, 0xd0, 0xe0, 0xf0]);
+    let encoded = Buffer.HEX.encode(actual);
+    expect<ArrayBuffer>(encoded).toStrictEqual(exampleBuffer.buffer);
+  });
+
+  test("#Hex.decode", () => {
+    let expected = "000102030405060708090a0b0c0d0e0f102030405060708090a0b0c0d0e0f0";
+    let exampleBuffer = create<Buffer>([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0, 0xd0, 0xe0, 0xf0]);
+    let decoded = Buffer.HEX.decode(exampleBuffer.buffer);
+    expect<string>(decoded).toStrictEqual(expected);
   });
 });
