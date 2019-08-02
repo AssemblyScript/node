@@ -29,6 +29,30 @@ declare class Buffer extends Uint8Array {
   writeUInt16LE(value: u16, offset?: i32): i32;
   /** Writes an inputted unsigned 16-bit integer at the designated offset, stored in Big Endian format */
   writeUInt16BE(value: u16, offset?: i32): i32;
+  /** Reads a signed 64-bit integer, stored in Little Endian format at the designated offset. */
+  readBigInt64LE(offset?: i32): i64;
+  /** Reads a signed 64-bit integer, stored in Big Endian format at the designated offset. */
+  readBigInt64BE(offset?: i32): i64;
+  /** Reads an unsigned 64-bit integer, stored in Little Endian format at the designated offset. */
+  readBigUInt64LE(offset?: i32): u64;
+  /** Reads an unsigned 64-bit integer, stored in Big Endian format at the designated offset. */
+  readBigUInt64BE(offset?: i32): u64;
+  /** Writes an inputted 64-bit integer at the designated offset, stored in Little Endian format */
+  writeBigInt64LE(value: i64, offset?: i32): i32;
+  /** Writes an inputted 64-bit integer at the designated offset, stored in Big Endian format */
+  writeBigInt64BE(value: i64, offset?: i32): i32;
+  /** Writes an inputted unsigned 64-bit integer at the designated offset, stored in Little Endian format */
+  writeBigUInt64LE(value: u64, offset?: i32): i32;
+  /** Writes an inputted unsigned 64-bit integer at the designated offset, stored in Big Endian format */
+  writeBigUInt64BE(value: u64, offset?: i32): i32;
+  /** Reads a signed 64-bit double, stored in Little Endian format at the designated offset. */
+  readDoubleLE(offset?: i32): f64;
+  /** Reads a signed 64-bit double, stored in Big Endian format at the designated offset. */
+  readDoubleBE(offset?: i32): f64;
+  /** Writes an inputted 64-bit double at the designated offset, stored in Little Endian format */
+  writeDoubleLE(value: f64, offset?: i32): i32;
+  /** Writes an inputted 64-bit double at the designated offset, stored in Big Endian format */
+  writeDoubleBE(value: f64, offset?: i32): i32;
 }
 
 declare namespace Buffer {
