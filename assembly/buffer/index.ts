@@ -283,7 +283,7 @@ export class Buffer extends Uint8Array {
     memory.copy(
       result,
       changetype<usize>(BUFFER_INSPECT_HEADER_START),
-      changetype<BLOCK>(changetype<usize>(BUFFER_INSPECT_HEADER_START) - BLOCK_OVERHEAD).rtSize,
+      16,
     );
 
     // Start writing at index 8
