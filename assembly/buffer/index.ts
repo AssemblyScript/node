@@ -274,7 +274,7 @@ export class Buffer extends Uint8Array {
      * // we can cast `elipsisEnd` to an integer `1 | 0`
      * let stringLength = 3 * (maxBytes + i32(elipsisEnd)) + 8;
      */
-    let stringLength = 3 * (maxBytes + i32(elipsisEnd)) + 8; // add 3 characters for elipsis
+    let stringLength = 3 * (maxBytes + i32(elipsisEnd)) + 8;
 
     // create the result
     let result = __alloc(stringLength << 1, idof<String>());
