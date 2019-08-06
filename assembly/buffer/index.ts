@@ -28,17 +28,18 @@ export class Buffer extends Uint8Array {
   public static from<T extends ArrayBufferView>(value: T): Buffer {
     // @ts-ignore: AssemblyScript treats this statement correctly
     if (value instanceof String[]) {
-      let length = value.length;
+      let length = <usize>value.length;
       let buffer = __alloc(length, idof<ArrayBuffer>());
       let sourceStart = value.dataStart;
-      for (let i = 0; i < length; i++) {
+      for (let i: usize = 0; i < length; i++) {
         let str = changetype<string>(load<usize>(sourceStart + (<usize>i << alignof<usize>())));
         let value = parseFloat(str); // parseFloat is still naive
-        store<u8>(buffer + usize(i), isFinite<f64>(value) ? u8(value) : u8(0));
+        trace("float values", 2, value, u8(value));
+        store<u8>(buffer + i, isFinite(value) ? u8(value) : u8(0));
       }
       let result = changetype<Buffer>(__alloc(offsetof<Buffer>(), idof<Buffer>()));
       result.data = changetype<ArrayBuffer>(buffer);
-      result.dataStart = changetype<usize>(value);
+      result.dataStart = changetype<usize>(buffer);
       result.dataLength = length;
       return result;
     } else if (value instanceof ArrayBuffer) {

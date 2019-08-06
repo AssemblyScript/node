@@ -60,9 +60,7 @@ describe("buffer", () => {
    * There are no good solutions. Only tradeoffs. Function overloading is the only
    * way to fix this problem.
    */
-  test("#from", () => {
-    // TODO: Switch to expect<Buffer>() when 2.2.1 releases
-
+  test(".from", () => {
     // Buffer.from uses the array buffer reference
     let buff = new ArrayBuffer(100);
     for (let i = 0; i < 100; i++) store<u8>(changetype<usize>(buff), u8(i));
@@ -72,26 +70,26 @@ describe("buffer", () => {
 
     // strings are utf8 encoded by default
     let strBuffer = Buffer.from<string>("Hello world!");
-    let strBufferExpected = bufferFrom<Buffer>([0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21]);
-    expect<ArrayBuffer>(strBuffer.buffer).toStrictEqual(strBufferExpected.buffer);
+    let strBufferExpected = create<Buffer>([0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21]);
+    expect<Buffer>(strBuffer).toStrictEqual(strBufferExpected);
 
     // buffer returns a new reference view to the same ArrayBuffer
     let buff2 = Buffer.from<Buffer>(abBuffer);
     expect<Buffer>(buff2).not.toBe(abBuffer);
+    expect<Buffer>(buff2).toStrictEqual(abBuffer);
     expect<ArrayBuffer>(buff2.buffer).toBe(abBuffer.buffer);
-    expect<usize>(buff2.dataStart).toBe(abBuffer.dataStart);
-    expect<u32>(buff2.dataLength).toBe(abBuffer.dataLength);
+    expect<i32>(buff2.byteOffset).toBe(abBuffer.byteOffset);
 
     // else if it extends ArrayBufferView simply converts all the values
-    let floats = bufferFrom<Float32Array>([1.1, 2.2, 3.3]);
+    let floats = create<Float32Array>([1.1, 2.2, 3.3]);
     let floatBuff = Buffer.from<Float32Array>(floats);
-    let floatBuffExpected = bufferFrom<Buffer>([1, 2, 3]);
-    expect<ArrayBuffer>(floatBuff.buffer).toStrictEqual(floatBuffExpected.buffer);
+    let floatBuffExpected = create<Buffer>([1, 2, 3]);
+    expect<Buffer>(floatBuff).toStrictEqual(floatBuffExpected);
 
-    let strArrayExpected = bufferFrom<Buffer>([1, 2, 3, 4, 5, 6, 7, 0, 0, 0]);
+    let strArrayExpected = create<Buffer>([1, 2, 3, 4, 5, 6, 7, 0, 0, 0]);
     let stringValues: string[] = ["1.1", "2.2", "3.3", "4.4", "5.5", "6.6", "7.7", "Infinity", "NaN", "-Infinity"];
     let strArrayActual = Buffer.from<Array<String>>(stringValues);
-    expect<ArrayBuffer>(strArrayActual.buffer).toStrictEqual(strArrayExpected.buffer);
+    expect<Buffer>(strArrayActual).toStrictEqual(strArrayExpected, "Array Of Strings");
   });
 
   test("#isBuffer", () => {
