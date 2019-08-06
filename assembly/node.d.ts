@@ -29,6 +29,30 @@ declare class Buffer extends Uint8Array {
   writeUInt16LE(value: u16, offset?: i32): i32;
   /** Writes an inputted unsigned 16-bit integer at the designated offset, stored in Big Endian format */
   writeUInt16BE(value: u16, offset?: i32): i32;
+  /** Reads a signed 32-bit integer, stored in Little Endian format at the designated offset. */
+  readInt32LE(offset?: i32): i32;
+  /** Reads a signed 32-bit integer, stored in Big Endian format at the designated offset. */
+  readInt32BE(offset?: i32): i32;
+  /** Reads an unsigned 32-bit integer, stored in Little Endian format at the designated offset. */
+  readUInt32LE(offset?: i32): u32;
+  /** Reads an unsigned 32-bit integer, stored in Big Endian format at the designated offset. */
+  readUInt32BE(offset?: i32): u32;
+  /** Writes an inputted 32-bit integer at the designated offset, stored in Little Endian format */
+  writeInt32LE(value: i32, offset?: i32): i32;
+  /** Writes an inputted 32-bit integer at the designated offset, stored in Big Endian format */
+  writeInt32BE(value: i32, offset?: i32): i32;
+  /** Writes an inputted unsigned 32-bit integer at the designated offset, stored in Little Endian format */
+  writeUInt32LE(value: u32, offset?: i32): i32;
+  /** Writes an inputted unsigned 32-bit integer at the designated offset, stored in Big Endian format */
+  writeUInt32BE(value: u32, offset?: i32): i32;
+  /** Reads a signed 32-bit float, stored in Little Endian format at the designated offset. */
+  readFloatLE(offset?: i32): f32;
+  /** Reads a signed 32-bit float, stored in Big Endian format at the designated offset. */
+  readFloatBE(offset?: i32): f32;
+  /** Writes an inputted 32-bit float at the designated offset, stored in Little Endian format */
+  writeFloatLE(value: f32, offset?: i32): i32;
+  /** Writes an inputted 32-bit float at the designated offset, stored in Big Endian format */
+  writeFloatBE(value: f32, offset?: i32): i32;
 }
 
 declare namespace Buffer {
