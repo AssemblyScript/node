@@ -358,6 +358,150 @@ describe("buffer", () => {
     // }).toThrow();
   });
 
+  test("#readBigInt64LE", () => {
+    let buff = create<Buffer>([0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00]);
+    expect<i64>(buff.readBigInt64LE()).toBe(-4294967296);
+    expect<i64>(buff.readBigInt64LE(8)).toBe(4294967295);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readBigInt64LE(0);
+    // }).toThrow();
+  });
+
+  test("#readBigInt64BE", () => {
+    let buff = create<Buffer>([0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00]);
+    expect<i64>(buff.readBigInt64BE()).toBe(4294967295);
+    expect<i64>(buff.readBigInt64BE(8)).toBe(-4294967296);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readBigInt64BE(0);
+    // }).toThrow();
+  });
+
+  test("#readBigUInt64LE", () => {
+    let buff = create<Buffer>([0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00]);
+    expect<u64>(buff.readBigUInt64LE()).toBe(18446744069414584320);
+    expect<u64>(buff.readBigUInt64LE(8)).toBe(4294967295);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readBigUInt64LE(0);
+    // }).toThrow();
+  });
+
+  test("#readBigUInt64BE", () => {
+    let buff = create<Buffer>([0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00]);
+    expect<u64>(buff.readBigUInt64BE()).toBe(4294967295);
+    expect<u64>(buff.readBigUInt64BE(8)).toBe(18446744069414584320);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readBigUInt64BE(0);
+    // }).toThrow();
+  });
+
+  test("#writeBigInt64LE", () => {
+    let buff = new Buffer(16);
+    expect<i64>(buff.writeBigInt64LE(-559038737)).toBe(8);
+    expect<i64>(buff.writeBigInt64LE(283033613,8)).toBe(16);
+    let result = create<Buffer>([0xEF,0xBE,0xAD,0xDE,0xFF,0xFF,0xFF,0xFF,0x0d,0xc0,0xde,0x10,0x00,0x00,0x00,0x00]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeBigInt64LE(0);
+    // }).toThrow();
+  });
+
+  test("#writeBigInt64BE", () => {
+    let buff = new Buffer(16);
+    expect<i64>(buff.writeBigInt64BE(-559038737)).toBe(8);
+    expect<i64>(buff.writeBigInt64BE(283033613,8)).toBe(16);
+    let result = create<Buffer>([0xFF,0xFF,0xFF,0xFF,0xDE,0xAD,0xBE,0xEF,0x00,0x00,0x00,0x00,0x10,0xde,0xc0,0x0d]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeBigInt64BE(0);
+    // }).toThrow();
+  });
+
+  test("#writeBigUInt64LE", () => {
+    let buff = new Buffer(16);
+    expect<i64>(buff.writeBigUInt64LE(3735928559)).toBe(8);
+    expect<i64>(buff.writeBigUInt64LE(283033613,8)).toBe(16);
+    let result = create<Buffer>([0xEF,0xBE,0xAD,0xDE,0x00,0x00,0x00,0x00,0x0d,0xc0,0xde,0x10,0x00,0x00,0x00,0x00]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeBigUInt64LE(0);
+    // }).toThrow();
+  });
+
+  test("#writeBigUInt64BE", () => {
+    let buff = new Buffer(16);
+    expect<i64>(buff.writeBigUInt64BE(3735928559)).toBe(8);
+    expect<i64>(buff.writeBigUInt64BE(283033613,8)).toBe(16);
+    let result = create<Buffer>([0x00,0x00,0x00,0x00,0xDE,0xAD,0xBE,0xEF,0x00,0x00,0x00,0x00,0x10,0xde,0xc0,0x0d]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeBigUInt64BE(0);
+    // }).toThrow();
+  });
+
+  test("#readDoubleLE", () => {
+    let buff = create<Buffer>([0x77, 0xbe, 0x9f, 0x1a, 0x2f, 0xdd, 0x5e, 0x40, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]);
+    expect<f64>(buff.readDoubleLE()).toBe(123.456);
+    expect<f64>(buff.readDoubleLE(8)).toBe(5.447603722011605e-270);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readDoubleLE(0);
+    // }).toThrow();
+  });
+
+  test("#readDoubleBE", () => {
+    let buff = create<Buffer>([0x40, 0x5e, 0xdd, 0x2f, 0x1a, 0x9f, 0xbe, 0x77, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]);
+    expect<f64>(buff.readDoubleBE()).toBe(123.456);
+    expect<f64>(buff.readDoubleBE(8)).toBe(8.20788039913184e-304);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readDoubleBE(0);
+    // }).toThrow();
+  });
+
+  test("#writeDoubleLE", () => {
+    let buff = new Buffer(16);
+    expect<i32>(buff.writeDoubleLE(123.456)).toBe(8);
+    expect<i32>(buff.writeDoubleLE(5.447603722011605e-270,8)).toBe(16);
+    let result = create<Buffer>([0x77, 0xbe, 0x9f, 0x1a, 0x2f, 0xdd, 0x5e, 0x40, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeDoubleLE(0);
+    // }).toThrow();
+  });
+
+  test("#writeDoubleBE", () => {
+    let buff = new Buffer(16);
+    expect<i32>(buff.writeDoubleBE(123.456)).toBe(8);
+    expect<i32>(buff.writeDoubleBE(8.20788039913184e-304,8)).toBe(16);
+    let result = create<Buffer>([0x40, 0x5e, 0xdd, 0x2f, 0x1a, 0x9f, 0xbe, 0x77, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeDoubleBE(0);
+    // }).toThrow();
+  });
+
   test("#subarray", () => {
     let example = create<Buffer>([1, 2, 3, 4, 5, 6, 7, 8]);
 
