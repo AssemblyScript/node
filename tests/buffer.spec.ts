@@ -358,7 +358,7 @@ describe("buffer", () => {
     // }).toThrow();
   });
 
-test("#readBigInt64LE", () => {
+  test("#readBigInt64LE", () => {
     let buff = create<Buffer>([0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00]);
     expect<i64>(buff.readBigInt64LE()).toBe(-4294967296);
     expect<i64>(buff.readBigInt64LE(8)).toBe(4294967295);
