@@ -241,6 +241,13 @@ export class Buffer extends Uint8Array {
     return offset + 8;
   }
 
+  /**
+   * Calculate an inspectable string to print to the console.
+   *
+   * @example
+   * let result = Buffer.from([1, 2, 3, 4, 5]).inspect();
+   * // '<Buffer 01 02 03 04 05>'
+   */
   inspect(): string {
     let byteLength = this.byteLength;
     if (INSPECT_MAX_BYTES == 0 || byteLength == 0) return "<Buffer >";
@@ -252,10 +259,22 @@ export class Buffer extends Uint8Array {
     // find the start of the buffer
     let dataStart = this.dataStart;
 
-    // formula for calculating end string length (3 * bytes) + 8
-    // Example: Buffer.from([1, 2, 3, 4, 5]).inspect() == '<Buffer 01 02 03 04 05>'
-    let stringLength = 3 * maxBytes + 8;
-    if (elipsisEnd) stringLength += 3; // add 3 characters for elipsis
+    /**
+     * Formula for stringLength is calculated by adding the constant character count
+     * to the number of visible bytes multiplied by 3, and adding 3 more for an ellipsis
+     * if the total number of visible bytes is less than the actual byteLength.
+     *
+     * @example
+     * let stringLength = (3 * maxBytes) + len("<Buffer ") + len(">") + (elipsisEnd ? 3 : 0);
+     *
+     * // This can be reduced to...
+     * let stringLength = (3 * maxBytes) + 8 + (elipsisEnd ? 3 : 0);
+     *
+     * // finally, `a * 3 + 3` is the same thing as `(a + 1) * 3`
+     * // we can cast `elipsisEnd` to an integer `1 | 0`
+     * let stringLength = 3 * (maxBytes + i32(elipsisEnd)) + 8;
+     */
+    let stringLength = 3 * (maxBytes + i32(elipsisEnd)) + 8; // add 3 characters for elipsis
 
     // create the result
     let result = __alloc(stringLength << 1, idof<String>());
