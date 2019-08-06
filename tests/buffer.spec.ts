@@ -1,10 +1,3 @@
-function bufferFrom<T>(values: valueof<T>[]): T {
-  let buffer = instantiate<T>(values.length);
-  // @ts-ignore
-  for (let i = 0; i < values.length; i++) buffer[i] = values[i];
-  return buffer;
-}
-
 /**
  * This is the buffer test suite. For each prototype function, put a single test
  * function call here.

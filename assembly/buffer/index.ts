@@ -74,6 +74,7 @@ export class Buffer extends Uint8Array {
     }
     ERROR("Cannot call Buffer.from<T>() where T is not a string, Buffer, ArrayBuffer, Array, or Array-like Object.");
   }
+
   public static isBuffer<T>(value: T): bool {
     return value instanceof Buffer;
   }
