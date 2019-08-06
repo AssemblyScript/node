@@ -13,24 +13,6 @@ declare class Buffer extends Uint8Array {
   writeInt8(value:i8, offset?:i32): i32;
   /** Reads a signed integer at the designated offset. */
   readInt8(offset?: i32): i8;
-  /** Inspect a buffer. */
-  inspect(): string;
-}
-
-declare module "buffer" {
-  /**
-   * The maximum number of bytes to inspect on a buffer.
-   *
-   * @example
-   * import { INSPECT_MAX_BYTES } from "buffer";
-   * // @ts-ignore: This is treated like a global
-   * INSPECT_MAX_BYTES = <i32>10;
-   */
-  export var INSPECT_MAX_BYTES: i32;
-
-  // To export the buffer, we must obtain the `typeof Buffer`
-  const BuffType: typeof Buffer;
-  export { BuffType as Buffer };
   /** Writes an inputted u8 value to the buffer, at the desired offset. */
   writeUInt8(value:u8, offset?:i32): i32;
   /** Reads a signed 16-bit integer, stored in Little Endian format at the designated offset. */
@@ -97,6 +79,24 @@ declare module "buffer" {
   writeDoubleLE(value: f64, offset?: i32): i32;
   /** Writes an inputted 64-bit double at the designated offset, stored in Big Endian format */
   writeDoubleBE(value: f64, offset?: i32): i32;
+  /** Inspect a buffer. */
+  inspect(): string;
+}
+
+declare module "buffer" {
+  /**
+   * The maximum number of bytes to inspect on a buffer.
+   *
+   * @example
+   * import { INSPECT_MAX_BYTES } from "buffer";
+   * // @ts-ignore: This is treated like a global
+   * INSPECT_MAX_BYTES = <i32>10;
+   */
+  export var INSPECT_MAX_BYTES: i32;
+
+  // To export the buffer, we must obtain the `typeof Buffer`
+  const BuffType: typeof Buffer;
+  export { BuffType as Buffer };
 }
 
 declare namespace Buffer {
