@@ -214,7 +214,151 @@ describe("buffer", () => {
     // }).toThrow();
   });
 
-  test("#readBigInt64LE", () => {
+  test("#readInt32LE", () => {
+    let buff = create<Buffer>([0xEF,0xBE,0xAD,0xDE,0x0d,0xc0,0xde,0x10]);
+    expect<i32>(buff.readInt32LE()).toBe(-559038737);
+    expect<i32>(buff.readInt32LE(4)).toBe(283033613);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readInt32LE(0);
+    // }).toThrow();
+  });
+
+  test("#readInt32BE", () => {
+    let buff = create<Buffer>([0xDE,0xAD,0xBE,0xEF,0x10,0xde,0xc0,0x0d]);
+    expect<i32>(buff.readInt32BE()).toBe(-559038737);
+    expect<i32>(buff.readInt32BE(4)).toBe(283033613);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readInt32BE(0);
+    // }).toThrow();
+  });
+
+  test("#readUInt32LE", () => {
+    let buff = create<Buffer>([0xEF,0xBE,0xAD,0xDE,0x0d,0xc0,0xde,0x10]);
+    expect<u32>(buff.readUInt32LE()).toBe(3735928559);
+    expect<u32>(buff.readUInt32LE(4)).toBe(283033613);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readUInt32LE(0);
+    // }).toThrow();
+  });
+
+  test("#readUInt32BE", () => {
+    let buff = create<Buffer>([0xDE,0xAD,0xBE,0xEF,0x10,0xde,0xc0,0x0d]);
+    expect<u32>(buff.readUInt32BE()).toBe(3735928559);
+    expect<u32>(buff.readUInt32BE(4)).toBe(283033613);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readUInt32BE(0);
+    // }).toThrow();
+  });
+
+  test("#writeInt32LE", () => {
+    let buff = new Buffer(8);
+    expect<i32>(buff.writeInt32LE(-559038737)).toBe(4);
+    expect<i32>(buff.writeInt32LE(283033613,4)).toBe(8);
+    let result = create<Buffer>([0xEF,0xBE,0xAD,0xDE,0x0d,0xc0,0xde,0x10]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeInt32LE(0);
+    // }).toThrow();
+  });
+
+  test("#writeInt32BE", () => {
+    let buff = new Buffer(8);
+    expect<i32>(buff.writeInt32BE(-559038737)).toBe(4);
+    expect<i32>(buff.writeInt32BE(283033613,4)).toBe(8);
+    let result = create<Buffer>([0xDE,0xAD,0xBE,0xEF,0x10,0xde,0xc0,0x0d]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeInt32BE(0);
+    // }).toThrow();
+  });
+
+  test("#writeUInt32LE", () => {
+    let buff = new Buffer(8);
+    expect<i32>(buff.writeUInt32LE(3735928559)).toBe(4);
+    expect<i32>(buff.writeUInt32LE(283033613,4)).toBe(8);
+    let result = create<Buffer>([0xEF,0xBE,0xAD,0xDE,0x0d,0xc0,0xde,0x10]);;
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeUInt32LE(0);
+    // }).toThrow();
+  });
+
+  test("#writeUInt32BE", () => {
+    let buff = new Buffer(8);
+    expect<i32>(buff.writeUInt32BE(3735928559)).toBe(4);
+    expect<i32>(buff.writeUInt32BE(283033613,4)).toBe(8);
+    let result = create<Buffer>([0xDE,0xAD,0xBE,0xEF,0x10,0xde,0xc0,0x0d]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeUInt32BE(0);
+    // }).toThrow();
+  });
+
+  test("#readFloatLE", () => {
+    let buff = create<Buffer>([0xbb,0xfe,0x4a,0x4f,0x01,0x02,0x03,0x04]);
+    expect<f32>(buff.readFloatLE()).toBe(0xcafebabe);
+    expect<f32>(buff.readFloatLE(4)).toBe(1.539989614439558e-36);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readFloatLE(0);
+    // }).toThrow();
+  });
+
+  test("#readFloatBE", () => {
+    let buff = create<Buffer>([0x4f,0x4a,0xfe,0xbb,0x01,0x02,0x03,0x04]);
+    expect<f32>(buff.readFloatBE()).toBe(0xcafebabe);
+    expect<f32>(buff.readFloatBE(4)).toBe(2.387939260590663e-38);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.readFloatBE(0);
+    // }).toThrow();
+  });
+
+  test("#writeFloatLE", () => {
+    let buff = new Buffer(8);
+    expect<i32>(buff.writeFloatLE(0xcafebabe)).toBe(4);
+    expect<i32>(buff.writeFloatLE(1.539989614439558e-36,4)).toBe(8);
+    let result = create<Buffer>([0xbb,0xfe,0x4a,0x4f,0x01,0x02,0x03,0x04]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeFloatLE(0);
+    // }).toThrow();
+  });
+
+  test("#writeFloatBE", () => {
+    let buff = new Buffer(8);
+    expect<i32>(buff.writeFloatBE(0xcafebabe)).toBe(4);
+    expect<i32>(buff.writeFloatBE(2.387939260590663e-38,4)).toBe(8);
+    let result = create<Buffer>([0x4f,0x4a,0xfe,0xbb,0x01,0x02,0x03,0x04]);
+    expect<Buffer>(buff).toStrictEqual(result);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = new Buffer(1);
+    //   newBuff.writeFloatBE(0);
+    // }).toThrow();
+  });
+
+test("#readBigInt64LE", () => {
     let buff = create<Buffer>([0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00]);
     expect<i64>(buff.readBigInt64LE()).toBe(-4294967296);
     expect<i64>(buff.readBigInt64LE(8)).toBe(4294967295);
