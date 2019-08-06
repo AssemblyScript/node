@@ -1,6 +1,10 @@
 import { BLOCK_MAXSIZE, BLOCK, BLOCK_OVERHEAD } from "rt/common";
 import { E_INVALIDLENGTH, E_INDEXOUTOFRANGE } from "util/error";
 import { Uint8Array } from "typedarray";
+const BUFFER_INSPECT_HEADER_START = "<Buffer ";
+const BUFFER_INSPECT_HEADER_BYTE_LEN = 16;
+
+export let INSPECT_MAX_BYTES: i32 = 50;
 
 export class Buffer extends Uint8Array {
   constructor(size: i32) {
@@ -236,6 +240,72 @@ export class Buffer extends Uint8Array {
     if (i32(offset < 0) | i32(<u32>offset + 8 > this.dataLength)) throw new RangeError(E_INDEXOUTOFRANGE);
     store<i64>(this.dataStart + offset, bswap<i64>(reinterpret<i64>(value)));
     return offset + 8;
+  }
+
+  /**
+   * Calculate an inspectable string to print to the console.
+   *
+   * @example
+   * let result = Buffer.from([1, 2, 3, 4, 5]).inspect();
+   * // '<Buffer 01 02 03 04 05>'
+   */
+  inspect(): string {
+    let byteLength = this.byteLength;
+    if (INSPECT_MAX_BYTES == 0 || byteLength == 0) return "<Buffer >";
+
+    // Calculate if an elipsis will be in the string
+    let elipsisEnd = byteLength > INSPECT_MAX_BYTES;
+    let maxBytes = elipsisEnd ? INSPECT_MAX_BYTES : byteLength;
+
+    // find the start of the buffer
+    let dataStart = this.dataStart;
+
+    /**
+     * Formula for stringLength is calculated by adding the constant character count
+     * to the number of visible bytes multiplied by 3, and adding 3 more for an ellipsis
+     * if the total number of visible bytes is less than the actual byteLength.
+     *
+     * @example
+     * let stringLength = (3 * maxBytes) + len("<Buffer ") + len(">") + (elipsisEnd ? 3 : 0);
+     *
+     * // This can be reduced to...
+     * let stringLength = (3 * maxBytes) + 8 + (elipsisEnd ? 3 : 0);
+     *
+     * // finally, `a * 3 + 3` is the same thing as `(a + 1) * 3`
+     * // we can cast `elipsisEnd` to an integer `1 | 0`
+     * let stringLength = 3 * (maxBytes + i32(elipsisEnd)) + 8;
+     */
+    let stringLength = 3 * (maxBytes + i32(elipsisEnd)) + 8;
+
+    // create the result
+    let result = __alloc(stringLength << 1, idof<String>());
+
+    // copy the 16 "<Buffer " bytes
+    memory.copy(
+      result,
+      changetype<usize>(BUFFER_INSPECT_HEADER_START),
+      BUFFER_INSPECT_HEADER_BYTE_LEN,
+    );
+
+    // Start writing at index 8
+    let writeOffset = result + BUFFER_INSPECT_HEADER_BYTE_LEN;
+    for (let i = 0; i < maxBytes; i++, writeOffset += 6) {
+      let byte = <u32>load<u8>(dataStart + <usize>i);
+
+      store<u32>(writeOffset, Buffer.HEX.charsFromByte(byte));
+      if (i == maxBytes - 1) {
+        if (elipsisEnd) {
+          // make this a single 64 bit store
+          store<u64>(writeOffset, <u64>0x003e_002e_002e_002e, 4); // "...>"
+        } else {
+          store<u16>(writeOffset, <u16>62, 4); // ">"
+        }
+      } else {
+        store<u16>(writeOffset, <u16>32, 4); // " "
+      }
+    }
+
+    return changetype<string>(result);
   }
 }
 
