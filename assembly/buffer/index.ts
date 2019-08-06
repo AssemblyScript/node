@@ -292,7 +292,7 @@ export class Buffer extends Uint8Array {
       let byte = <u32>load<u8>(dataStart + <usize>i);
 
       store<u32>(writeOffset, Buffer.HEX.charsFromByte(byte));
-      if (i == (maxBytes - 1)) {
+      if (i == maxBytes - 1) {
         if (elipsisEnd) {
           // make this a single 64 bit store
           store<u64>(writeOffset, <u64>0x003e_002e_002e_002e, 4); // "...>"
