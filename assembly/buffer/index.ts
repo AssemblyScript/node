@@ -276,7 +276,7 @@ export class Buffer extends Uint8Array {
       if (i == (maxBytes - 1)) {
         if (elipsisEnd) {
           // make this a single 64 bit store
-          store<u64>(writeOffset, <u64>17451646127570990, 4); // "...>"
+          store<u64>(writeOffset, <u64>0x003e_002e_002e_002e, 4); // "...>"
         } else {
           store<u16>(writeOffset, <u16>62, 4); // ">"
         }
