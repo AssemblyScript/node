@@ -1,7 +1,8 @@
 import { BLOCK_MAXSIZE, BLOCK, BLOCK_OVERHEAD } from "rt/common";
 import { E_INVALIDLENGTH, E_INDEXOUTOFRANGE } from "util/error";
 import { Uint8Array } from "typedarray";
-const BUFFER_INSPECT_HEADER_START: string = "<Buffer ";
+const BUFFER_INSPECT_HEADER_START = "<Buffer ";
+const BUFFER_INSPECT_HEADER_BYTE_LEN = 16;
 
 export let INSPECT_MAX_BYTES: i32 = 50;
 
@@ -283,11 +284,11 @@ export class Buffer extends Uint8Array {
     memory.copy(
       result,
       changetype<usize>(BUFFER_INSPECT_HEADER_START),
-      16,
+      BUFFER_INSPECT_HEADER_BYTE_LEN,
     );
 
     // Start writing at index 8
-    let writeOffset = result + 16;
+    let writeOffset = result + BUFFER_INSPECT_HEADER_BYTE_LEN;
     for (let i = 0; i < maxBytes; i++, writeOffset += 6) {
       let byte = <u32>load<u8>(dataStart + <usize>i);
 
