@@ -287,7 +287,7 @@ export class Buffer extends Uint8Array {
     );
 
     // Start writing at index 8
-    let writeOffset: usize = result + 16;
+    let writeOffset = result + 16;
     for (let i = 0; i < maxBytes; i++, writeOffset += 6) {
       let byte = <u32>load<u8>(dataStart + <usize>i);
 
