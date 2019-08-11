@@ -2,8 +2,6 @@ import { BLOCK_MAXSIZE, BLOCK, BLOCK_OVERHEAD } from "rt/common";
 import { E_INVALIDLENGTH, E_INDEXOUTOFRANGE } from "util/error";
 import { Uint8Array } from "typedarray";
 
-const E_INVALIDBUFFERSIZE = "Buffer size is invalid."; // Temp String
-
 export class Buffer extends Uint8Array {
   constructor(size: i32) {
     super(size);
@@ -243,7 +241,7 @@ export class Buffer extends Uint8Array {
   swap16(): Buffer {
     let dataLength = this.dataLength;
     // Make sure dataLength is even
-    if (dataLength & 1) throw new RangeError(E_INVALIDBUFFERSIZE);
+    if (dataLength & 1) throw new RangeError(E_INVALIDLENGTH);
     let dataStart = this.dataStart;
     dataLength += dataStart;
     while (dataStart < dataLength) {
@@ -256,7 +254,7 @@ export class Buffer extends Uint8Array {
   swap32(): Buffer {
     let dataLength = this.dataLength;
     // Make sure dataLength is divisible by 4
-    if (dataLength & 3) throw new RangeError(E_INVALIDBUFFERSIZE);
+    if (dataLength & 3) throw new RangeError(E_INVALIDLENGTH);
     let dataStart = this.dataStart;
     dataLength += dataStart;
     while (dataStart < dataLength) {
@@ -269,7 +267,7 @@ export class Buffer extends Uint8Array {
   swap64(): Buffer {
     let dataLength = this.dataLength;
     // Make sure dataLength is divisible by 8
-    if (dataLength & 7) throw new RangeError(E_INVALIDBUFFERSIZE);
+    if (dataLength & 7) throw new RangeError(E_INVALIDLENGTH);
     let dataStart = this.dataStart;
     dataLength += dataStart;
     while (dataStart < dataLength) {
