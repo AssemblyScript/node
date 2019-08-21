@@ -290,6 +290,45 @@ export class Buffer extends Uint8Array {
     store<i64>(this.dataStart + offset, bswap<i64>(reinterpret<i64>(value)));
     return offset + 8;
   }
+
+  swap16(): Buffer {
+    let dataLength = this.dataLength;
+    // Make sure dataLength is even
+    if (dataLength & 1) throw new RangeError(E_INVALIDLENGTH);
+    let dataStart = this.dataStart;
+    dataLength += dataStart;
+    while (dataStart < dataLength) {
+      store<u16>(dataStart, bswap<u16>(load<u16>(dataStart)));
+      dataStart += 2;
+    }
+    return this;
+  }
+  
+  swap32(): Buffer {
+    let dataLength = this.dataLength;
+    // Make sure dataLength is divisible by 4
+    if (dataLength & 3) throw new RangeError(E_INVALIDLENGTH);
+    let dataStart = this.dataStart;
+    dataLength += dataStart;
+    while (dataStart < dataLength) {
+      store<u32>(dataStart, bswap<u32>(load<u32>(dataStart)));
+      dataStart += 4;
+    }
+    return this;
+  }
+  
+  swap64(): Buffer {
+    let dataLength = this.dataLength;
+    // Make sure dataLength is divisible by 8
+    if (dataLength & 7) throw new RangeError(E_INVALIDLENGTH);
+    let dataStart = this.dataStart;
+    dataLength += dataStart;
+    while (dataStart < dataLength) {
+      store<u64>(dataStart, bswap<u64>(load<u64>(dataStart)));
+      dataStart += 8;
+    }
+    return this;
+  }
 }
 
 export namespace Buffer {

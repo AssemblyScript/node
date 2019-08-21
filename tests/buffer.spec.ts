@@ -571,6 +571,45 @@ describe("buffer", () => {
     expected = create<Buffer>([5, 6, 7]);
     expect<Buffer>(actual).toStrictEqual(expected);
   });
+
+  test("#swap16", () => {
+    let actual = create<Buffer>([0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8]);
+    let expected = create<Buffer>([0x2, 0x1, 0x4, 0x3, 0x6, 0x5, 0x8, 0x7]);
+    let swapped = actual.swap16();
+    expect<Buffer>(actual).toStrictEqual(expected);
+    expect<Buffer>(swapped).toBe(actual);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = create<Buffer>([0x1, 0x2, 0x3]);
+    //   newBuff.swap16();
+    // }).toThrow();
+  });
+
+  test("#swap32", () => {
+    let actual = create<Buffer>([0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8]);
+    let expected = create<Buffer>([0x4, 0x3, 0x2, 0x1, 0x8, 0x7, 0x6, 0x5]);
+    let swapped = actual.swap32();
+    expect<Buffer>(actual).toStrictEqual(expected);
+    expect<Buffer>(swapped).toBe(actual);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = create<Buffer>([0x1, 0x2, 0x3]);
+    //   newBuff.swap64();
+    // }).toThrow();
+  });
+
+  test("#swap64", () => {
+    let actual = create<Buffer>([0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf]);
+    let expected = create<Buffer>([0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0, 0xf, 0xe, 0xd, 0xc, 0xb, 0xa, 0x9, 0x8]);
+    let swapped = actual.swap64();
+    expect<Buffer>(actual).toStrictEqual(expected);
+    expect<Buffer>(swapped).toBe(actual);
+    // TODO:
+    // expectFn(() => {
+    //   let newBuff = create<Buffer>([0x1, 0x2, 0x3]);
+    //   newBuff.swap64();
+    // }).toThrow();
+  });
                        
   test("#Hex.encode", () => {
     let actual = "000102030405060708090a0b0c0d0e0f102030405060708090a0b0c0d0e0f0";

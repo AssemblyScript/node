@@ -79,6 +79,12 @@ declare class Buffer extends Uint8Array {
   writeDoubleLE(value: f64, offset?: i32): i32;
   /** Writes an inputted 64-bit double at the designated offset, stored in Big Endian format */
   writeDoubleBE(value: f64, offset?: i32): i32;
+  /** Swaps every group of two bytes in a Buffer in-place */
+  swap16(): Buffer;
+  /** Swaps every group of four bytes in a Buffer in-place */
+  swap32(): Buffer;
+  /** Swaps every group of eight bytes in a Buffer in-place */
+  swap64(): Buffer;
 }
 
 declare namespace Buffer {
