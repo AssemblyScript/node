@@ -388,14 +388,31 @@ export namespace Buffer {
     }
 
     export function byteLength(input: string): i32 {
+      let length = input.length;
+      if (length & 0b11) return -1;
+      length -= 2;
+      let char: u16;
+      for (let i = 0; i < length; i++) {
+        char = load<u16>(changetype<usize>(input) + (<usize>i << alignof<u16>()));
+        if (i32(char >= 0x41) & i32(char <= 0x5A)) continue;
+        else if (i32(char >= 0x61) & i32(char <= 0x7A)) continue;
+        else if (i32(char >= 0x31) & i32(char <= 0x39)) continue;
+        else if(i32(char == 0x2B) | i32(char == 0x2F)) continue;
+        return -1;
+      }
+      // check each char
+      char = load<u16>(changetype<usize>(input) + (<usize>length << alignof<u16>()), 2);
+
+      char = load<u16>(changetype<usize>(input) + (<usize>length << alignof<u16>()), 4);
       return -1;
     }
 
-    export function stringLength(buffer: ArrayBuffer): i32 {
-      return <i32>Math.ceil(<f32>buffer.byteLength / 3) << 2;
+    export function stringLength(byteLength: i32): i32 {
+      return (<i32>Math.floor(byteLength / 3) << 2) + select(4, 0, byteLength % 3 != 0);
     }
 
     export function encode(input: string): ArrayBuffer {
+
       return new ArrayBuffer(0);
     }
 
