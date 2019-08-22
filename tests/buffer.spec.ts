@@ -592,7 +592,6 @@ describe("buffer", () => {
     expect<string>(decoded).toStrictEqual("AQIDBA==");
     decoded = Buffer.BASE64.decode(create<Buffer>([1, 2, 3, 4, 5]).buffer);
     expect<string>(decoded).toBe("AQIDBAU=", "target");
-
     decoded = Buffer.BASE64.decode(create<Buffer>([
       150, 144,  40,  36,  82,   6, 240,  81, 182,  94,  22,
       137,  32, 212,  14,   6, 176, 169, 104,  91, 243, 241,
@@ -615,5 +614,11 @@ describe("buffer", () => {
       106
     ]).buffer);
     expect<string>(decoded).toBe("vSQJHj1Wusb3lhfgbLIj35vyjKujgq1+PEZT03EGiYymYl5eBG6SAuIze+LrBCwfcUWpZGGq77l3anBroizTpljhjSZ6UuWZcxdsdyYR5Mw0DhtoO0DFbevO88SrswY+ag==");
+
+    decoded = Buffer.BASE64.decode(create<Buffer>([
+      141, 192, 94, 172,
+      180, 140,  2,  59
+    ]).buffer);
+    expect<string>(decoded).toBe("jcBerLSMAjs=");
   });
 });

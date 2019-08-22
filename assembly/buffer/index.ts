@@ -378,10 +378,12 @@ export namespace Buffer {
   }
 
   export namespace BASE64 {
-
+    // @ts-ignore: Decorators!
+    @inline
     function charCodeFromByte(value: i32): u64 {
       if (i32(value >= 0) & i32(value < 26)) return value + 0x41;
-      else if (i32(value >= 26) & i32(value < 51)) return value + 0x61;
+      else if (i32(value >= 26) & i32(value < 52)) return value + 0x47;
+      else if (i32(value >= 52) & i32(value < 62)) return value - 0x4;
       else return select(0x2B, 0x2F, value == 62);
     }
 
@@ -401,20 +403,20 @@ export namespace Buffer {
       return decodeUnsafe(changetype<usize>(buffer), buffer.byteLength);
     }
 
-    export function decodeUnsafe(pointer: usize, length: i32): string {
+    export function decodeUnsafe(sourcePointer: usize, length: i32): string {
       if (length == 0) return "";
       let iterations = <i32>Math.floor(length / 3);
       let leftoverBytes = length % 3;
-      let stringLength = (iterations << 2) + select(4, 0, leftoverBytes);
+      let stringLength = (iterations << 2) + select(4, 0, leftoverBytes != 0);
       let output = __alloc(stringLength << 1, idof<String>());
 
       for (let i = 0; i < iterations; i++) {
-        let bytes = bswap<u32>(load<u32>(pointer + <usize>i * 3)) >>> 8;
+        let bytes = bswap<u32>(load<u32>(sourcePointer + <usize>i * 3)) >>> 8;
+
         let value1 = (bytes & 0b111111000000000000000000) >> 18; // first 6 bits
         let value2 = (bytes &       0b111111000000000000) >> 12; // second 6 bits
         let value3 = (bytes &             0b111111000000) >> 6 ; // third 6 bits
         let value4 = (bytes &                   0b111111)      ; // fourth 6 bits
-
         let chars: u64 = charCodeFromByte(value1)
           | (charCodeFromByte(value2) << 16)
           | (charCodeFromByte(value3) << 32)
@@ -425,7 +427,7 @@ export namespace Buffer {
       // A is 0x61
       // = is 0x3D
       if (leftoverBytes == 2) {
-        let bytes = <u32>bswap<u16>(load<u16>(pointer + <usize>(iterations * 3))) << 2;
+        let bytes = <u32>bswap<u16>(load<u16>(sourcePointer + <usize>(iterations * 3))) << 2;
         let value1 = (bytes &       0b111111000000000000) >> 12; // first 6 bits
         let value2 = (bytes &             0b111111000000) >> 6 ; // second 6 bits
         let value3 = (bytes &                   0b111111) >> 0 ; // third 6 bits
@@ -435,9 +437,14 @@ export namespace Buffer {
           | <u64>0x3D000000000000;
         store<u64>(output + (<usize>iterations << alignof<u64>()), chars);
       } else if (leftoverBytes == 1) {
-        let bytes = <i32>load<u8>(pointer + <usize>(iterations * 3)) >> 2;
-        let chars: u64 = charCodeFromByte(bytes & 0b111111)
-           | <u64>0x3D003D00410000;
+        let bytes = <i32>load<u8>(sourcePointer + <usize>(iterations * 3));
+        trace("bytes", 1, bytes);
+        let value1 = (bytes & 0b11111100) >> 2;
+        let value2 = (bytes & 0b11) << 4;
+        let chars: u64 = charCodeFromByte(value1)
+           | <u64>(charCodeFromByte(value2) << 16)
+           | <u64>0x3D003D00000000;
+
         store<u64>(output + (<usize>iterations << alignof<u64>()), chars);
       }
 
