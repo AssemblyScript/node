@@ -376,4 +376,72 @@ export namespace Buffer {
       return changetype<string>(result);
     }
   }
+
+  export namespace BASE64 {
+
+    function charCodeFromByte(value: i32): u64 {
+      if (i32(value >= 0) & i32(value < 26)) return value + 0x41;
+      else if (i32(value >= 26) & i32(value < 51)) return value + 0x61;
+      else return select(0x2B, 0x2F, value == 62);
+    }
+
+    export function byteLength(input: string): i32 {
+      return -1;
+    }
+
+    export function stringLength(buffer: ArrayBuffer): i32 {
+      return <i32>Math.ceil(<f32>buffer.byteLength / 3) << 2;
+    }
+
+    export function encode(input: string): ArrayBuffer {
+      return new ArrayBuffer(0);
+    }
+
+    export function decode(buffer: ArrayBuffer): string {
+      return decodeUnsafe(changetype<usize>(buffer), buffer.byteLength);
+    }
+
+    export function decodeUnsafe(pointer: usize, length: i32): string {
+      if (length == 0) return "";
+      let iterations = <i32>Math.floor(length / 3);
+      let leftoverBytes = length % 3;
+      let stringLength = (iterations << 2) + select(4, 0, leftoverBytes);
+      let output = __alloc(stringLength << 1, idof<String>());
+
+      for (let i = 0; i < iterations; i++) {
+        let bytes = bswap<u32>(load<u32>(pointer + <usize>i * 3)) >>> 8;
+        let value1 = (bytes & 0b111111000000000000000000) >> 18; // first 6 bits
+        let value2 = (bytes &       0b111111000000000000) >> 12; // second 6 bits
+        let value3 = (bytes &             0b111111000000) >> 6 ; // third 6 bits
+        let value4 = (bytes &                   0b111111)      ; // fourth 6 bits
+
+        let chars: u64 = charCodeFromByte(value1)
+          | (charCodeFromByte(value2) << 16)
+          | (charCodeFromByte(value3) << 32)
+          | (charCodeFromByte(value4) << 48);
+        store<u64>(output + (<usize>i << alignof<u64>()), chars);
+      }
+
+      // A is 0x61
+      // = is 0x3D
+      if (leftoverBytes == 2) {
+        let bytes = <u32>bswap<u16>(load<u16>(pointer + <usize>(iterations * 3))) << 2;
+        let value1 = (bytes &       0b111111000000000000) >> 12; // first 6 bits
+        let value2 = (bytes &             0b111111000000) >> 6 ; // second 6 bits
+        let value3 = (bytes &                   0b111111) >> 0 ; // third 6 bits
+        let chars: u64 = charCodeFromByte(value1)
+          | <u64>(charCodeFromByte(value2) << 16)
+          | <u64>(charCodeFromByte(value3) << 32)
+          | <u64>0x3D000000000000;
+        store<u64>(output + (<usize>iterations << alignof<u64>()), chars);
+      } else if (leftoverBytes == 1) {
+        let bytes = <i32>load<u8>(pointer + <usize>(iterations * 3)) >> 2;
+        let chars: u64 = charCodeFromByte(bytes & 0b111111)
+           | <u64>0x3D003D00410000;
+        store<u64>(output + (<usize>iterations << alignof<u64>()), chars);
+      }
+
+      return changetype<string>(output);
+    }
+  }
 }

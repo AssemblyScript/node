@@ -570,7 +570,7 @@ describe("buffer", () => {
     //   newBuff.swap64();
     // }).toThrow();
   });
-                       
+
   test("#Hex.encode", () => {
     let actual = "000102030405060708090a0b0c0d0e0f102030405060708090a0b0c0d0e0f0";
     let exampleBuffer = create<Buffer>([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0, 0xd0, 0xe0, 0xf0]);
@@ -583,5 +583,37 @@ describe("buffer", () => {
     let exampleBuffer = create<Buffer>([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0, 0xd0, 0xe0, 0xf0]);
     let decoded = Buffer.HEX.decode(exampleBuffer.buffer);
     expect<string>(decoded).toStrictEqual(expected);
+  });
+
+  test("#Base64.decode", () => {
+    let decoded = Buffer.BASE64.decode(create<Buffer>([1, 2, 3]).buffer);
+    expect<string>(decoded).toBe("AQID");
+    decoded = Buffer.BASE64.decode(create<Buffer>([1, 2, 3, 4]).buffer);
+    expect<string>(decoded).toStrictEqual("AQIDBA==");
+    decoded = Buffer.BASE64.decode(create<Buffer>([1, 2, 3, 4, 5]).buffer);
+    expect<string>(decoded).toBe("AQIDBAU=", "target");
+
+    decoded = Buffer.BASE64.decode(create<Buffer>([
+      150, 144,  40,  36,  82,   6, 240,  81, 182,  94,  22,
+      137,  32, 212,  14,   6, 176, 169, 104,  91, 243, 241,
+       62, 242, 156,  72,  51, 139, 140, 227, 109, 204, 147,
+      130,  35, 104, 157, 139,  52, 201, 114, 154, 160, 230,
+      185, 245, 198, 192,  21, 153,  33, 120, 133,  40, 140,
+      215,  26, 233, 199, 245,  13, 211, 169, 183
+    ]).buffer);
+    expect<string>(decoded).toBe("lpAoJFIG8FG2XhaJINQOBrCpaFvz8T7ynEgzi4zjbcyTgiNonYs0yXKaoOa59cbAFZkheIUojNca6cf1DdOptw==");
+
+    decoded = Buffer.BASE64.decode(create<Buffer>([
+      189,  36,   9,  30,  61,  86, 186, 198, 247, 150,  23, 224,
+      108, 178,  35, 223, 155, 242, 140, 171, 163, 130, 173, 126,
+       60,  70,  83, 211, 113,   6, 137, 140, 166,  98,  94,  94,
+        4, 110, 146,   2, 226,  51, 123, 226, 235,   4,  44,  31,
+      113,  69, 169, 100,  97, 170, 239, 185, 119, 106, 112, 107,
+      162,  44, 211, 166,  88, 225, 141,  38, 122,  82, 229, 153,
+      115,  23, 108, 119,  38,  17, 228, 204,  52,  14,  27, 104,
+       59,  64, 197, 109, 235, 206, 243, 196, 171, 179,   6,  62,
+      106
+    ]).buffer);
+    expect<string>(decoded).toBe("vSQJHj1Wusb3lhfgbLIj35vyjKujgq1+PEZT03EGiYymYl5eBG6SAuIze+LrBCwfcUWpZGGq77l3anBroizTpljhjSZ6UuWZcxdsdyYR5Mw0DhtoO0DFbevO88SrswY+ag==");
   });
 });
