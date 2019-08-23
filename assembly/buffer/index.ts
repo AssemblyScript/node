@@ -390,9 +390,9 @@ export namespace Buffer {
     export function byteLength(input: string): i32 {
       let length = input.length;
       if (length & 0b11) return -1;
-      length -= 2;
       let char: u16;
-      for (let i = 0; i < length; i++) {
+      let count = length - 2;
+      for (let i = 0; i < count; i++) {
         char = load<u16>(changetype<usize>(input) + (<usize>i << alignof<u16>()));
         if (i32(char >= 0x41) & i32(char <= 0x5A)) continue;
         else if (i32(char >= 0x61) & i32(char <= 0x7A)) continue;
@@ -400,20 +400,59 @@ export namespace Buffer {
         else if(i32(char == 0x2B) | i32(char == 0x2F)) continue;
         return -1;
       }
-      // check each char
-      char = load<u16>(changetype<usize>(input) + (<usize>length << alignof<u16>()), 2);
+
+      // check each of the last two chars
+      char = load<u16>(changetype<usize>(input) + (<usize>count << alignof<u16>()), 2);
+
+      let hasPadding = false;
+      if (i32(char >= 0x41) & i32(char <= 0x5A)
+        | i32(char >= 0x61) & i32(char <= 0x7A)
+        | i32(char >= 0x31) & i32(char <= 0x39)
+        | i32(char == 0x2B)
+        | i32(char == 0x2F)) {}
+      else if (char == 0x3D) { hasPadding = true; }
+      else return -1;
 
       char = load<u16>(changetype<usize>(input) + (<usize>length << alignof<u16>()), 4);
-      return -1;
+      if (hasPadding) {
+        if (char != 0x3D) return -1;
+      } else {
+        if ( (i32(char >= 0x41) & i32(char <= 0x5A))
+           | (i32(char >= 0x61) & i32(char <= 0x7A))
+           | (i32(char >= 0x31) & i32(char <= 0x39))
+           | i32(char == 0x2B)
+           | i32(char == 0x2F)
+           | i32(char == 0x3D)) {}
+        else return -1;
+      }
+
+      return (length * 3) >>> 2;
     }
 
     export function stringLength(byteLength: i32): i32 {
       return (<i32>Math.floor(byteLength / 3) << 2) + select(4, 0, byteLength % 3 != 0);
     }
 
-    export function encode(input: string): ArrayBuffer {
+    export function encode(input: string): ArrayBuffer | null {
+      let outputLength = byteLength(input);
+      if (outputLength == -1) return null;
+      let output = __alloc(outputLength, idof<ArrayBuffer>());
+      let stringLength = input.length;
+      let iterations = stringLength >>> 1;
+      for (let i = 0; i < iterations; i++) {
+        let inputPointer = changetype<usize>(input) + (<usize>i << 4);
+        let chars1 = load<u64>(inputPointer);
+        let chars2 = load<u64>(inputPointer, 8);
+        // TODO: set output1 and output2
+        let output1: u32 = 0;
+        let output2: u16 = 0;
+        let outputPointer = output + <usize>i * 12;
+        store<u32>(outputPointer, output1);
+        store<u16>(outputPointer, output2, 4);
+      }
 
-      return new ArrayBuffer(0);
+      // TODO: set the last 3 bytes with the last 4 characters
+      return changetype<ArrayBuffer>(output);
     }
 
     export function decode(buffer: ArrayBuffer): string {
@@ -422,7 +461,7 @@ export namespace Buffer {
 
     export function decodeUnsafe(sourcePointer: usize, length: i32): string {
       if (length == 0) return "";
-      let iterations = <i32>Math.floor(length / 3);
+      let iterations = <i32>Math.floor(<f32>length / 3);
       let leftoverBytes = length % 3;
       let stringLength = (iterations << 2) + select(4, 0, leftoverBytes != 0);
       let output = __alloc(stringLength << 1, idof<String>());
