@@ -7,7 +7,7 @@ export class Buffer extends Uint8Array {
     super(size);
   }
 
-  @inline static alloc(size: i32): Buffer {
+  static alloc(size: i32): Buffer {
     return new Buffer(size);
   }
 
@@ -23,7 +23,7 @@ export class Buffer extends Uint8Array {
     return result;
   }
 
-  @inline static isBuffer<T>(value: T): bool {
+  static isBuffer<T>(value: T): bool {
     return value instanceof Buffer;
   }
 
