@@ -23,6 +23,16 @@ export class Buffer extends Uint8Array {
     return result;
   }
 
+  public static compare(a: Buffer, b: Buffer): i32 {
+    let compareLength = min<i32>(a.length, b.length);
+    let result = memory.compare(a.dataStart, b.dataStart, compareLength);
+    if (result == 0) {
+      return a.length - b.length;
+    } else {
+      return result;
+    }
+  };
+
   public static isBuffer<T>(value: T): bool {
     return value instanceof Buffer;
   }

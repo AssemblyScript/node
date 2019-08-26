@@ -1,3 +1,10 @@
+function createFrom<T>(values: valueof<T>[]): T {
+  let result = instantiate<T>(values.length);
+  // @ts-ignore
+  for (let i = 0; i < values.length; i++) result[i] = values[i];
+  return result;
+}
+
 /**
  * This is the buffer test suite. For each prototype function, put a single test
  * function call here.
@@ -50,6 +57,18 @@ describe("buffer", () => {
     expect<u32>(buff.byteLength).toBe(100);
     // TODO: expectFn(() => { Buffer.allocUnsafe(-1); }).toThrow();
     // TODO: expectFn(() => { Buffer.allocUnsafe(BLOCK_MAXSIZE + 1); }).toThrow();
+  });
+
+  test("#compare", () => {
+    let a = createFrom<Buffer>([0x05, 0x06, 0x07, 0x08]);
+    let b = createFrom<Buffer>([0x01, 0x02, 0x03]);
+    let c = createFrom<Buffer>([0x05, 0x06, 0x07]);
+    let d = createFrom<Buffer>([0x04, 0x05, 0x06]);
+
+    let actual: Buffer[] = [a, b, c, d];
+    actual.sort(Buffer.compare);
+    let expected: Buffer[] = [b, d, c, a];
+    expect<Buffer[]>(actual).toStrictEqual(expected);
   });
 
   test("#isBuffer", () => {
