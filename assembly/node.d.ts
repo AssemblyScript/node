@@ -94,4 +94,9 @@ declare namespace Buffer {
     /** Decodes a chunk of memory to a utf16le encoded string in hex format. */
     export function decodeUnsafe(ptr: usize, byteLength: i32): string;
   }
+
+  export namespace BASE64 {
+    /** Creates a string from a given ArrayBuffer that is decoded into base64 format. */
+    export function decode(buffer: ArrayBuffer): string;
+  }
 }

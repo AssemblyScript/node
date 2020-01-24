@@ -374,4 +374,135 @@ export namespace Buffer {
       return (lo << 16) | hi;
     }
   }
+
+  export namespace BASE64 {
+    // @ts-ignore: Decorators!
+    @inline
+    function charCodeFromByte(value: i32): u64 {
+      if (i32(value >= 0) & i32(value < 26)) return value + 0x41;
+      else if (i32(value >= 26) & i32(value < 52)) return value + 0x47;
+      else if (i32(value >= 52) & i32(value < 62)) return value - 0x4;
+      else return select(0x2B, 0x2F, value == 62);
+    }
+
+    export function byteLength(input: string): i32 {
+      let length = input.length;
+      if (length & 0b11) return -1;
+      let char: u16;
+      let count = length - 2;
+      for (let i = 0; i < count; i++) {
+        char = load<u16>(changetype<usize>(input) + (<usize>i << alignof<u16>()));
+        if (i32(char >= 0x41) & i32(char <= 0x5A)) continue;
+        else if (i32(char >= 0x61) & i32(char <= 0x7A)) continue;
+        else if (i32(char >= 0x31) & i32(char <= 0x39)) continue;
+        else if(i32(char == 0x2B) | i32(char == 0x2F)) continue;
+        return -1;
+      }
+
+      // check each of the last two chars
+      char = load<u16>(changetype<usize>(input) + (<usize>count << alignof<u16>()), 2);
+
+      let hasPadding = false;
+      if (i32(char >= 0x41) & i32(char <= 0x5A)
+        | i32(char >= 0x61) & i32(char <= 0x7A)
+        | i32(char >= 0x31) & i32(char <= 0x39)
+        | i32(char == 0x2B)
+        | i32(char == 0x2F)) {}
+      else if (char == 0x3D) { hasPadding = true; }
+      else return -1;
+
+      char = load<u16>(changetype<usize>(input) + (<usize>length << alignof<u16>()), 4);
+      if (hasPadding) {
+        if (char != 0x3D) return -1;
+      } else {
+        if ( (i32(char >= 0x41) & i32(char <= 0x5A))
+           | (i32(char >= 0x61) & i32(char <= 0x7A))
+           | (i32(char >= 0x31) & i32(char <= 0x39))
+           | i32(char == 0x2B)
+           | i32(char == 0x2F)
+           | i32(char == 0x3D)) {}
+        else return -1;
+      }
+
+      return (length * 3) >>> 2;
+    }
+
+    export function stringLength(byteLength: i32): i32 {
+      return (<i32>Math.floor(byteLength / 3) << 2) + select(4, 0, byteLength % 3 != 0);
+    }
+
+    export function encode(input: string): ArrayBuffer | null {
+      let outputLength = byteLength(input);
+      if (outputLength == -1) return null;
+      let output = __alloc(outputLength, idof<ArrayBuffer>());
+      let stringLength = input.length;
+      let iterations = stringLength >>> 1;
+      for (let i = 0; i < iterations; i++) {
+        let inputPointer = changetype<usize>(input) + (<usize>i << 4);
+        let chars1 = load<u64>(inputPointer);
+        let chars2 = load<u64>(inputPointer, 8);
+        // TODO: set output1 and output2
+        let output1: u32 = 0;
+        let output2: u16 = 0;
+        let outputPointer = output + <usize>i * 12;
+        store<u32>(outputPointer, output1);
+        store<u16>(outputPointer, output2, 4);
+      }
+
+      // TODO: set the last 3 bytes with the last 4 characters
+      return changetype<ArrayBuffer>(output);
+    }
+
+    export function decode(buffer: ArrayBuffer): string {
+      return decodeUnsafe(changetype<usize>(buffer), buffer.byteLength);
+    }
+
+    export function decodeUnsafe(sourcePointer: usize, length: i32): string {
+      if (length == 0) return "";
+      let iterations = <i32>Math.floor(<f32>length / 3);
+      let leftoverBytes = length % 3;
+      let stringLength = (iterations << 2) + select(4, 0, leftoverBytes != 0);
+      let output = __alloc(stringLength << 1, idof<String>());
+
+      for (let i = 0; i < iterations; i++) {
+        let bytes = bswap<u32>(load<u32>(sourcePointer + <usize>i * 3)) >>> 8;
+
+        let value1 = (bytes & 0b111111000000000000000000) >> 18; // first 6 bits
+        let value2 = (bytes &       0b111111000000000000) >> 12; // second 6 bits
+        let value3 = (bytes &             0b111111000000) >> 6 ; // third 6 bits
+        let value4 = (bytes &                   0b111111)      ; // fourth 6 bits
+        let chars: u64 = charCodeFromByte(value1)
+          | (charCodeFromByte(value2) << 16)
+          | (charCodeFromByte(value3) << 32)
+          | (charCodeFromByte(value4) << 48);
+        store<u64>(output + (<usize>i << alignof<u64>()), chars);
+      }
+
+      // A is 0x61
+      // = is 0x3D
+      if (leftoverBytes == 2) {
+        let bytes = <u32>bswap<u16>(load<u16>(sourcePointer + <usize>(iterations * 3))) << 2;
+        let value1 = (bytes &       0b111111000000000000) >> 12; // first 6 bits
+        let value2 = (bytes &             0b111111000000) >> 6 ; // second 6 bits
+        let value3 = (bytes &                   0b111111) >> 0 ; // third 6 bits
+        let chars: u64 = charCodeFromByte(value1)
+          | <u64>(charCodeFromByte(value2) << 16)
+          | <u64>(charCodeFromByte(value3) << 32)
+          | <u64>0x3D000000000000;
+        store<u64>(output + (<usize>iterations << alignof<u64>()), chars);
+      } else if (leftoverBytes == 1) {
+        let bytes = <i32>load<u8>(sourcePointer + <usize>(iterations * 3));
+        trace("bytes", 1, bytes);
+        let value1 = (bytes & 0b11111100) >> 2;
+        let value2 = (bytes & 0b11) << 4;
+        let chars: u64 = charCodeFromByte(value1)
+           | <u64>(charCodeFromByte(value2) << 16)
+           | <u64>0x3D003D00000000;
+
+        store<u64>(output + (<usize>iterations << alignof<u64>()), chars);
+      }
+
+      return changetype<string>(output);
+    }
+  }
 }
