@@ -5,8 +5,14 @@ const { main } = require("assemblyscript/cli/asc");
 const { parse } = require("assemblyscript/cli/util/options");
 const path = require("path");
 const fs = require("fs");
-const Wasi = require("wasi");
-const wasi = new Wasi({});
+const { WASI } = require("wasi");
+const wasi = new WASI({
+  args: [],
+  env: {},
+  preopens: {
+    // '/sandbox': '/some/real/path/that/wasm/can/access'
+  }
+});
 let pass = true;
 
 const options = parse(process.argv.slice(2), {
@@ -28,6 +34,8 @@ if (options.unknown.length > 1) {
 }
 
 const reporter = new VerboseReporter();
+reporter.stderr = process.stderr;
+reporter.stdout = process.stdout;
 
 function relativeFromCwd(location) {
   return path.relative(process.cwd(), location);
@@ -38,9 +46,9 @@ const ascOptions = [
   "--use", "ASC_RTRACE=1",
   "--explicitStart",
   "--validate",
-  "--debug",
   "--measure",
   "--lib", "assembly",
+  "--transform", require.resolve("@as-pect/core/lib/transform/index.js"),
 ];
 
 const files = glob.sync("tests/**/*.spec.ts")
@@ -74,10 +82,15 @@ for (const file of files) {
   const ext = path.extname(file);
   const wasmFileName = path.join(path.dirname(file), path.basename(file, ext)) + ".wasm";
   const watFileName = path.join(path.dirname(file), path.basename(file, ext)) + ".wat";
-  const cliOptions = ascOptions.concat([file, "--binaryFile", wasmFileName, "--textFile", watFileName]);
+
+  const cliOptions = ascOptions.concat([
+    file,
+    "--binaryFile", wasmFileName,
+    "--textFile", watFileName,
+  ]);
 
   process.stdout.write("Test File : " + file + " (untouched)\n");
-  main(cliOptions, untouchedAscOptions, (err) => {
+  main(cliOptions.concat(["--debug"]), untouchedAscOptions, (err) => {
     if (err) {
       console.error(err);
       errors.push(err);
@@ -116,11 +129,9 @@ function runTest(file, type, binary, wat) {
   const context = new TestContext({
     fileName: file,
     reporter,
-    stderr: process.stderr,
-    stdout: process.stdout,
   });
   const imports = context.createImports({
-    wasi_unstable: wasi.exports,
+    wasi_snapshot_preview1: wasi.wasiImport,
   });
   const wasm = instantiateBuffer(binary, imports);
   wasi.setMemory(wasm.memory);
