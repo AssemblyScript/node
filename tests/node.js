@@ -141,4 +141,4 @@ function runTest(file, type, binary, wat) {
   if (!context.pass) pass = false;
 }
 
-process.exit(pass ? 0 : 1);
+process.exit(pass && errors.length === 0 ? 0 : 1);
