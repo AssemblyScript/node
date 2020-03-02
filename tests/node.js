@@ -1,18 +1,11 @@
 const { TestContext, VerboseReporter } = require("@as-pect/core");
-const { instantiateBuffer } = require("assemblyscript/lib/loader");
 const glob = require("glob");
+const { instantiateSync } = require("assemblyscript/lib/loader");
 const { main } = require("assemblyscript/cli/asc");
 const { parse } = require("assemblyscript/cli/util/options");
 const path = require("path");
 const fs = require("fs");
 const { WASI } = require("wasi");
-const wasi = new WASI({
-  args: [],
-  env: {},
-  preopens: {
-    // '/sandbox': '/some/real/path/that/wasm/can/access'
-  }
-});
 let pass = true;
 
 const options = parse(process.argv.slice(2), {
@@ -118,8 +111,11 @@ for (const file of files) {
 }
 
 function runTest(fileName, type, binary, wat) {
-  const watPath = path.join(path.dirname(fileName), path.basename(fileName, ".ts"))
-    + "." + type +  ".wat";
+  const dirname = path.dirname(fileName);
+  const basename = path.basename(fileName, ".ts");
+  const fullName = path.join(dirname, basename)
+  const watPath = `${fullName}.${type}.wat`;
+  const fileNamePath = `${fullName}.${type}.ts`;
 
   // should not block testing
   fs.writeFile(watPath, wat, (err) => {
@@ -127,18 +123,23 @@ function runTest(fileName, type, binary, wat) {
   });
 
   const context = new TestContext({
-    fileName, // set the fileName
+    fileName: fileNamePath, // set the fileName
     reporter, // use verbose reporter
     binary, // pass the binary to get function names
   });
-
+  const wasi = new WASI({
+    args: [],
+    env: {},
+    preopens: {
+      // '/sandbox': '/some/real/path/that/wasm/can/access'
+    }
+  });
   const imports = context.createImports({
     wasi_snapshot_preview1: wasi.wasiImport,
   });
-  const wasm = instantiateBuffer(binary, imports);
-  wasi.setMemory(wasm.memory);
-  wasi.view = new DataView(wasm.memory.buffer);
-  context.run(wasm);
+  const instance = instantiateSync(binary, imports);
+  // TODO: wasi.start(instance);
+  context.run(instance);
 
   if (!context.pass) pass = false;
 }

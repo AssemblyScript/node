@@ -3,6 +3,30 @@ import { E_INVALIDLENGTH, E_INDEXOUTOFRANGE } from "util/error";
 import { Uint8Array } from "typedarray";
 
 export class Buffer extends Uint8Array {
+  [key: number]: u8;
+
+  @operator("[]")
+  private __get(index: i32): u8 {
+    if (<u32>index >= <u32>this.byteLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    return load<u8>(this.dataStart + <usize>index);
+  }
+
+  @unsafe @operator("{}")
+  private __uget(index: i32): u8 {
+    return load<u8>(this.dataStart + <usize>index);
+  }
+
+  @operator("[]=")
+  private __set(index: i32, value: native<u8>): void {
+    if (<u32>index >= <u32>this.byteLength) throw new RangeError(E_INDEXOUTOFRANGE);
+    store<u8>(this.dataStart + <usize>index, value);
+  }
+
+  @unsafe @operator("{}=")
+  private __uset(index: i32, value: native<u8>): void {
+    store<u8>(this.dataStart + <usize>index, value);
+  }
+
   constructor(size: i32) {
     super(size);
   }

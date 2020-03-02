@@ -85,11 +85,10 @@ describe("buffer", () => {
     expect(buff.readUInt8()).toBe(254);
     // Testing offset
     expect(buff.readUInt8(4)).toBe(47);
-    // TODO:
-    // expectFn(() => {
-    //   let newBuff = new Buffer(1);
-    //   newBuff.readUInt8(5);
-    // }).toThrow();
+    expect(() => {
+      let newBuff = new Buffer(1);
+      newBuff.readUInt8(5);
+    }).toThrow();
   });
 
   test("#writeInt8", () => {
@@ -121,7 +120,7 @@ describe("buffer", () => {
     let buff = create<Buffer>([0x0,0x05,0x0]);
     expect(buff.readInt16LE()).toBe(1280);
     expect(buff.readInt16LE(1)).toBe(5);
-    expectFn(() => {
+    expect(() => {
       let newBuff = new Buffer(1);
       newBuff.readInt16LE(0);
     }).toThrow();
@@ -187,11 +186,10 @@ describe("buffer", () => {
     expect(buff.writeUInt16LE(1280,2)).toBe(4);
     let result = create<Buffer>([0x05, 0x0, 0x0, 0x5]);
     expect(buff).toStrictEqual(result);
-    // TODO:
-    // expectFn(() => {
-    //   let newBuff = new Buffer(1);
-    //   newBuff.writeUInt16LE(0);
-    // }).toThrow();
+    expect(() => {
+      let newBuff = new Buffer(1);
+      newBuff.writeUInt16LE(0);
+    }).toThrow();
   });
 
   test("#writeUInt16BE", () => {
