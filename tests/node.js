@@ -137,8 +137,10 @@ function runTest(fileName, type, binary, wat) {
   const imports = context.createImports({
     wasi_snapshot_preview1: wasi.wasiImport,
   });
+
   const instance = instantiateSync(binary, imports);
   // TODO: wasi.start(instance);
+  process.stdout.write("\n");
   context.run(instance);
 
   if (!context.pass) pass = false;
