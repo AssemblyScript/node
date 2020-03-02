@@ -117,8 +117,8 @@ for (const file of files) {
   process.stdout.write("\n");
 }
 
-function runTest(file, type, binary, wat) {
-  const watPath = path.join(path.dirname(file), path.basename(file, ".ts"))
+function runTest(fileName, type, binary, wat) {
+  const watPath = path.join(path.dirname(fileName), path.basename(fileName, ".ts"))
     + "." + type +  ".wat";
 
   // should not block testing
@@ -127,9 +127,11 @@ function runTest(file, type, binary, wat) {
   });
 
   const context = new TestContext({
-    fileName: file,
-    reporter,
+    fileName, // set the fileName
+    reporter, // use verbose reporter
+    binary, // pass the binary to get function names
   });
+
   const imports = context.createImports({
     wasi_snapshot_preview1: wasi.wasiImport,
   });
