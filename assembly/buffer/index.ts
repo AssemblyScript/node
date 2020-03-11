@@ -5,28 +5,6 @@ import { Uint8Array } from "typedarray";
 export class Buffer extends Uint8Array {
   [key: number]: u8;
 
-  @operator("[]")
-  private __get(index: i32): u8 {
-    if (<u32>index >= <u32>this.byteLength) throw new RangeError(E_INDEXOUTOFRANGE);
-    return load<u8>(this.dataStart + <usize>index);
-  }
-
-  @unsafe @operator("{}")
-  private __uget(index: i32): u8 {
-    return load<u8>(this.dataStart + <usize>index);
-  }
-
-  @operator("[]=")
-  private __set(index: i32, value: native<u8>): void {
-    if (<u32>index >= <u32>this.byteLength) throw new RangeError(E_INDEXOUTOFRANGE);
-    store<u8>(this.dataStart + <usize>index, value);
-  }
-
-  @unsafe @operator("{}=")
-  private __uset(index: i32, value: native<u8>): void {
-    store<u8>(this.dataStart + <usize>index, value);
-  }
-
   constructor(size: i32) {
     super(size);
   }
@@ -269,12 +247,12 @@ export class Buffer extends Uint8Array {
   }
 
   swap16(): Buffer {
-    let byteLength = this.byteLength;
+    let byteLength = <usize>this.byteLength;
     // Make sure byteLength is even
     if (byteLength & 1) throw new RangeError(E_INVALIDLENGTH);
     let dataStart = this.dataStart;
     byteLength += dataStart;
-    while (dataStart < <usize>byteLength) {
+    while (dataStart < byteLength) {
       store<u16>(dataStart, bswap(load<u16>(dataStart)));
       dataStart += 2;
     }
@@ -282,12 +260,12 @@ export class Buffer extends Uint8Array {
   }
 
   swap32(): Buffer {
-    let byteLength = this.byteLength;
+    let byteLength = <usize>this.byteLength;
     // Make sure byteLength is divisible by 4
     if (byteLength & 3) throw new RangeError(E_INVALIDLENGTH);
     let dataStart = this.dataStart;
     byteLength += dataStart;
-    while (dataStart < <usize>byteLength) {
+    while (dataStart < byteLength) {
       store<u32>(dataStart, bswap(load<u32>(dataStart)));
       dataStart += 4;
     }
@@ -295,7 +273,7 @@ export class Buffer extends Uint8Array {
   }
 
   swap64(): Buffer {
-    let byteLength = this.byteLength;
+    let byteLength = <usize>this.byteLength;
     // Make sure byteLength is divisible by 8
     if (byteLength & 7) throw new RangeError(E_INVALIDLENGTH);
     let dataStart = this.dataStart;
@@ -313,8 +291,8 @@ export namespace Buffer {
     /** Calculates the byte length of the specified string when encoded as HEX. */
     export function byteLength(str: string): i32 {
       let ptr = changetype<usize>(str);
-      let byteCount = changetype<BLOCK>(changetype<usize>(str) - BLOCK_OVERHEAD).rtSize;
-      let length = byteCount >> 2;
+      let byteCount = <usize>changetype<BLOCK>(changetype<usize>(str) - BLOCK_OVERHEAD).rtSize;
+      let length = byteCount >>> 2;
       // The string length must be even because the bytes come in pairs of characters two wide
       if (byteCount & 3) return 0; // encoding fails and returns an empty ArrayBuffer
 
@@ -330,7 +308,7 @@ export namespace Buffer {
           return 0;
         }
       }
-      return length;
+      return <i32>length;
     }
 
     /** Creates an ArrayBuffer from a given string that is encoded in the HEX format. */
@@ -341,7 +319,7 @@ export namespace Buffer {
 
       // long path: loop over each enociding pair and perform the conversion
       let ptr = changetype<usize>(str);
-      let byteEnd = changetype<BLOCK>(changetype<usize>(str) - BLOCK_OVERHEAD).rtSize + ptr;
+      let byteEnd = ptr + <usize>changetype<BLOCK>(changetype<usize>(str) - BLOCK_OVERHEAD).rtSize;
       let result = __alloc(bufferLength, idof<ArrayBuffer>());
       let b: u32 = 0;
       let outChar = 0;
