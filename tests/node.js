@@ -1,12 +1,13 @@
 const { TestContext, VerboseReporter } = require("@as-pect/core");
-const { instantiateBuffer } = require("assemblyscript/lib/loader");
 const glob = require("glob");
+const { instantiateSync } = require("assemblyscript/lib/loader");
 const { main } = require("assemblyscript/cli/asc");
 const { parse } = require("assemblyscript/cli/util/options");
 const path = require("path");
-const fs = require("fs");
-const Wasi = require("wasi");
-const wasi = new Wasi({});
+const fs = require("fs").promises;
+const { WASI } = require("wasi");
+
+const promises = [];
 let pass = true;
 
 const options = parse(process.argv.slice(2), {
@@ -28,6 +29,8 @@ if (options.unknown.length > 1) {
 }
 
 const reporter = new VerboseReporter();
+reporter.stderr = process.stderr;
+reporter.stdout = process.stdout;
 
 function relativeFromCwd(location) {
   return path.relative(process.cwd(), location);
@@ -38,9 +41,9 @@ const ascOptions = [
   "--use", "ASC_RTRACE=1",
   "--explicitStart",
   "--validate",
-  "--debug",
   "--measure",
   "--lib", "assembly",
+  "--transform", require.resolve("@as-pect/core/lib/transform/index.js"),
 ];
 
 const files = glob.sync("tests/**/*.spec.ts")
@@ -74,10 +77,15 @@ for (const file of files) {
   const ext = path.extname(file);
   const wasmFileName = path.join(path.dirname(file), path.basename(file, ext)) + ".wasm";
   const watFileName = path.join(path.dirname(file), path.basename(file, ext)) + ".wat";
-  const cliOptions = ascOptions.concat([file, "--binaryFile", wasmFileName, "--textFile", watFileName]);
+
+  const cliOptions = ascOptions.concat([
+    file,
+    "--binaryFile", wasmFileName,
+    "--textFile", watFileName,
+  ]);
 
   process.stdout.write("Test File : " + file + " (untouched)\n");
-  main(cliOptions, untouchedAscOptions, (err) => {
+  main(cliOptions.concat(["--debug"]), untouchedAscOptions, (err) => {
     if (err) {
       console.error(err);
       errors.push(err);
@@ -104,30 +112,49 @@ for (const file of files) {
   process.stdout.write("\n");
 }
 
-function runTest(file, type, binary, wat) {
-  const watPath = path.join(path.dirname(file), path.basename(file, ".ts"))
-    + "." + type +  ".wat";
+function runTest(fileName, type, binary, wat) {
+  const dirname = path.dirname(fileName);
+  const basename = path.basename(fileName, ".ts");
+  const fullName = path.join(dirname, basename)
+  const watPath = `${fullName}.${type}.wat`;
+  const fileNamePath = `${fullName}.${type}.ts`;
 
   // should not block testing
-  fs.writeFile(watPath, wat, (err) => {
-    if (err) console.warn(err);
-  });
+  promises.push(fs.writeFile(watPath, wat));
 
   const context = new TestContext({
-    fileName: file,
-    reporter,
-    stderr: process.stderr,
-    stdout: process.stdout,
+    fileName: fileNamePath, // set the fileName
+    reporter, // use verbose reporter
+    binary, // pass the binary to get function names
+  });
+  const wasi = new WASI({
+    args: [],
+    env: {},
+    preopens: {
+      // '/sandbox': '/some/real/path/that/wasm/can/access'
+    }
   });
   const imports = context.createImports({
-    wasi_unstable: wasi.exports,
+    wasi_snapshot_preview1: wasi.wasiImport,
   });
-  const wasm = instantiateBuffer(binary, imports);
-  wasi.setMemory(wasm.memory);
-  wasi.view = new DataView(wasm.memory.buffer);
-  context.run(wasm);
+
+  const instance = instantiateSync(binary, imports);
+  // TODO: wasi.start(instance);
+  process.stdout.write("\n");
+  context.run(instance);
 
   if (!context.pass) pass = false;
 }
 
-process.exit(pass ? 0 : 1);
+// await for all the file writes to occur for the wat files
+Promise.all(promises)
+  .then(() => {
+    // if the file writes were successful, inspect errors and pass
+    process.exit(pass && errors.length === 0 ? 0 : 1);
+  })
+  .catch((error) => {
+    // report the file write error and exit 1
+    console.error(error);
+    process.exit(1);
+  });
+
