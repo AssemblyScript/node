@@ -64,13 +64,11 @@ describe("buffer", () => {
       }
       list.push(buff);
     }
-    let actual: Buffer = Buffer.concat(list, 15);
+    let actual = Buffer.concat(list, 15);
 
-    let expected: Buffer = create<Buffer>([0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 4]);
+    let expected = create<Buffer>([0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 4]);
 
-    // TODO: When as-pect releases 2.2.1
-    // expect<Buffer>(actual).toStrictEqual(expected);
-    expect<ArrayBuffer>(actual.buffer).toStrictEqual(expected.buffer);
+    expect<Buffer>(actual).toStrictEqual(expected);
   });
 
   test("#isBuffer", () => {

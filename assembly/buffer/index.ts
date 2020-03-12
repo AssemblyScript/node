@@ -12,9 +12,9 @@ export class Buffer extends Uint8Array {
     return new Buffer(size);
   }
 
-  public static concat<T extends Uint8Array>(items: Array<T>, length: i32): Buffer {
-    // assert the list itself isn't null
-    assert(items != null);
+  public static concat<T extends Uint8Array>(items: Array<T>, length: i32 = i32.MAX_VALUE): Buffer {
+    if (items.length == 0) return new Buffer(0);
+    if (length < 0) throw new Error(E_INDEXOUTOFRANGE);
 
     let size: usize = 0;
     let itemCount = <usize>items.length;
@@ -36,7 +36,8 @@ export class Buffer extends Uint8Array {
 
     // assemble the Buffer
     store<usize>(result, __retain(arrayBuffer), offsetof<Buffer>("buffer"));
-    store<usize>(result, arrayBuffer, offsetof<Buffer>("byteLength"));
+    store<usize>(result, arrayBuffer, offsetof<Buffer>("dataStart"));
+    store<u32>(result, <u32>size, offsetof<Buffer>("byteLength"));
 
     let start = arrayBuffer;
     for (let i: usize = 0; i32(i < itemCount) & i32(size > 0); i++) {
