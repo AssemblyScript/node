@@ -12,7 +12,7 @@ export class Buffer extends Uint8Array {
     return new Buffer(size);
   }
 
-  public static concat(items: Array<Buffer>, length: i32): Buffer {
+  public static concat<T extends Uint8Array>(items: Array<T>, length: i32): Buffer {
     // assert the list itself isn't null
     assert(items != null);
 
