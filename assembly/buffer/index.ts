@@ -29,7 +29,7 @@ export class Buffer extends Uint8Array {
     }
 
     // account for passed concat buffer length
-    size = min<usize>(<usize>length, size);
+    size = min(<usize>length, size);
 
     let arrayBuffer = __alloc(size, idof<ArrayBuffer>());
     let result = __alloc(offsetof<Buffer>(), idof<Buffer>());
@@ -43,7 +43,7 @@ export class Buffer extends Uint8Array {
       let item = load<usize>(itemsDataStart + (i << alignof<usize>()));
       // if Buffer is null, continue
       if (item == 0) continue;
-      let count = min<usize>(size, <usize>load<u32>(item, offsetof<Buffer>("byteLength")));
+      let count = min(size, <usize>load<u32>(item, offsetof<Buffer>("byteLength")));
       memory.copy(start, load<usize>(item, offsetof<Buffer>("dataStart")), count);
       start += count;
       size -= count;
