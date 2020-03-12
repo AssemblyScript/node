@@ -36,7 +36,7 @@ describe("buffer", () => {
     expect(Buffer.alloc(10)).toBeTruthy();
     expect(Buffer.alloc(10)).toHaveLength(10);
     let buff = Buffer.alloc(100);
-    for (let i = 0; i < buff.length; i++) expect<u8>(buff[i]).toBe(0);
+    for (let i = 0; i < buff.length; i++) expect(buff[i]).toBe(0);
     expect(buff.buffer).not.toBeNull();
     expect(buff.byteLength).toBe(100);
     expect(() => { Buffer.alloc(-1); }).toThrow();
@@ -56,19 +56,18 @@ describe("buffer", () => {
   });
 
   test("#concat", () => {
-    let list: Buffer[] = new Array<Buffer>(0);
-    for (let i = 0; i < 5; i++) {
-      let buff = Buffer.alloc(5 - i);
-      for (let j = 0; j < (5 - i); j++) {
-         buff[j] = u8(i);
-      }
-      list.push(buff);
-    }
-    let actual = Buffer.concat(list, 15);
+    let actual = Buffer.concat([
+      create<Buffer>([0, 0, 0, 0, 0]),
+      create<Buffer>([1, 1, 1, 1]),
+      create<Buffer>([2, 2, 2]),
+      create<Buffer>([3, 3]),
+      create<Buffer>([4]),
+      create<Buffer>([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]),
+    ], 15);
 
     let expected = create<Buffer>([0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 4]);
 
-    expect<Buffer>(actual).toStrictEqual(expected);
+    expect(actual).toStrictEqual(expected);
   });
 
   test("#isBuffer", () => {
@@ -268,7 +267,7 @@ describe("buffer", () => {
     expect(buff.writeInt32LE(-559038737)).toBe(4);
     expect(buff.writeInt32LE(283033613,4)).toBe(8);
     let result = create<Buffer>([0xEF,0xBE,0xAD,0xDE,0x0d,0xc0,0xde,0x10]);
-    expect<Buffer>(buff).toStrictEqual(result);
+    expect(buff).toStrictEqual(result);
     expect(() => {
       let newBuff = new Buffer(1);
       newBuff.writeInt32LE(0);
