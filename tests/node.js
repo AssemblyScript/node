@@ -4,8 +4,10 @@ const { instantiateSync } = require("assemblyscript/lib/loader");
 const { main } = require("assemblyscript/cli/asc");
 const { parse } = require("assemblyscript/cli/util/options");
 const path = require("path");
-const fs = require("fs");
+const fs = require("fs").promises;
 const { WASI } = require("wasi");
+
+const promises = [];
 let pass = true;
 
 const options = parse(process.argv.slice(2), {
@@ -118,9 +120,7 @@ function runTest(fileName, type, binary, wat) {
   const fileNamePath = `${fullName}.${type}.ts`;
 
   // should not block testing
-  fs.writeFile(watPath, wat, (err) => {
-    if (err) console.warn(err);
-  });
+  promises.push(fs.writeFile(watPath, wat));
 
   const context = new TestContext({
     fileName: fileNamePath, // set the fileName
@@ -146,4 +146,15 @@ function runTest(fileName, type, binary, wat) {
   if (!context.pass) pass = false;
 }
 
-process.exit(pass && errors.length === 0 ? 0 : 1);
+// await for all the file writes to occur for the wat files
+Promise.all(promises)
+  .then(() => {
+    // if the file writes were successful, inspect errors and pass
+    process.exit(pass && errors.length === 0 ? 0 : 1);
+  })
+  .catch((error) => {
+    // report the file write error and exit 1
+    console.error(error);
+    process.exit(1);
+  });
+

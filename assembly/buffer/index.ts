@@ -15,7 +15,7 @@ export class Buffer extends Uint8Array {
 
   @unsafe static allocUnsafe(size: i32): Buffer {
     // range must be valid
-    if (i32(<usize>size > BLOCK_MAXSIZE) | i32(size < 0)) throw new RangeError(E_INVALIDLENGTH);
+    if (<usize>size > BLOCK_MAXSIZE) throw new RangeError(E_INVALIDLENGTH);
     let buffer = __alloc(size, idof<ArrayBuffer>());
     let result = __alloc(offsetof<Buffer>(), idof<Buffer>());
 
