@@ -302,14 +302,12 @@ export namespace Buffer {
       return decodeUnsafe(changetype<usize>(buffer), buffer.byteLength);
     }
 
-    const ASCII_DECODE_LOOKUP = "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-
     @unsafe export function decodeUnsafe(pointer: usize, length: i32): String {
       let result = __alloc(<usize>length << 1, idof<string>());
 
       for (let i = 0; i < length; i++) {
         let byte = load<u8>(pointer + <usize>i);
-        store<u16>(result + <usize>(i << 1), load<u16>(changetype<usize>(ASCII_DECODE_LOOKUP) + (<usize>(byte & 0b01111111) << 1)));
+        store<u16>(result + <usize>(i << 1), <u16>(byte & 0b01111111));
       }
 
       return changetype<String>(result);
