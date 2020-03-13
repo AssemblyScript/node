@@ -292,7 +292,7 @@ export namespace Buffer {
       let length = str.length;
       let output = __alloc(length, idof<ArrayBuffer>());
       for (let i = 0; i < length; i++) {
-        let char = load<u16>(changetype<usize>(str) + <usize>i << 1);
+        let char = load<u16>(changetype<usize>(str) + <usize>(i << 1));
         store<u8>(output + <usize>i, <u8>(0b01111111 & char));
       }
       return changetype<ArrayBuffer>(output);
