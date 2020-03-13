@@ -287,6 +287,34 @@ export class Buffer extends Uint8Array {
 }
 
 export namespace Buffer {
+  export namespace ASCII {
+    export function encode(str: string): ArrayBuffer {
+      let length = str.length;
+      let output = __alloc(length, idof<ArrayBuffer>());
+      for (let i = 0; i < length; i++) {
+        let char = load<u16>(changetype<usize>(str) + <usize>(i << 1));
+        store<u8>(output + <usize>i, char & 0x7F);
+      }
+      return changetype<ArrayBuffer>(output);
+    }
+
+    export function decode(buffer: ArrayBuffer): String {
+      return decodeUnsafe(changetype<usize>(buffer), buffer.byteLength);
+    }
+
+    // @ts-ignore: decorator
+    @unsafe export function decodeUnsafe(pointer: usize, length: i32): String {
+      let result = __alloc(<usize>length << 1, idof<string>());
+
+      for (let i = 0; i < length; i++) {
+        let byte = load<u8>(pointer + <usize>i);
+        store<u16>(result + <usize>(i << 1), byte & 0x7F);
+      }
+
+      return changetype<String>(result);
+    }
+  }
+
   export namespace HEX {
     /** Calculates the byte length of the specified string when encoded as HEX. */
     export function byteLength(str: string): i32 {
@@ -358,6 +386,7 @@ export namespace Buffer {
     }
 
     /** Decodes a chunk of memory to a utf16le encoded string in hex format. */
+    // @ts-ignore: decorator
     @unsafe export function decodeUnsafe(ptr: usize, length: i32): string {
       let stringByteLength = length << 2; // length * (2 bytes per char) * (2 chars per input byte)
       let result = __alloc(stringByteLength, idof<String>());
@@ -374,6 +403,7 @@ export namespace Buffer {
     }
 
     /** Calculates the two char combination from the byte. */
+    // @ts-ignore: decorator
     @inline function charsFromByte(byte: u32): u32 {
       let hi = (byte >>> 4) & 0xF;
       let lo = byte & 0xF;
