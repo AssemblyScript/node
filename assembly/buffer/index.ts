@@ -6,7 +6,7 @@ import { Array } from "array";
 
 // @ts-ignore: Decorator
 @inline
-function assembleBuffer(arrayBuffer: usize, offset: usize, length: u32): Buffer {
+function allocBuffer(arrayBuffer: usize, offset: usize, length: u32): Buffer {
   let pointer = __alloc(offsetof<Buffer>(), idof<Buffer>());
   store<usize>(pointer, __retain(arrayBuffer), offsetof<Buffer>("buffer"));
   store<usize>(pointer, arrayBuffer + offset, offsetof<Buffer>("dataStart"));
@@ -26,7 +26,7 @@ export class Buffer extends Uint8Array {
   @unsafe static allocUnsafe(size: i32): Buffer {
     // range must be valid
     if (<usize>size > BLOCK_MAXSIZE) throw new RangeError(E_INVALIDLENGTH);
-    return assembleBuffer(__alloc(size, idof<ArrayBuffer>()), 0, size);
+    return allocBuffer(__alloc(size, idof<ArrayBuffer>()), 0, size);
   }
 
   public static fromArrayBuffer(buffer: ArrayBuffer, byteOffset: i32 = 0, length: i32 = -1): Buffer {
@@ -34,7 +34,7 @@ export class Buffer extends Uint8Array {
     if (i32(byteOffset < 0) | i32(byteOffset > buffer.byteLength - length)) throw new RangeError(E_INDEXOUTOFRANGE);
     if (length == 0) return new Buffer(0);
 
-    return assembleBuffer(changetype<usize>(buffer), <usize>byteOffset, <u32>length);
+    return allocBuffer(changetype<usize>(buffer), <usize>byteOffset, <u32>length);
   }
 
   public static fromString(value: string, encoding: string = "utf8"): Buffer {
@@ -52,7 +52,7 @@ export class Buffer extends Uint8Array {
     }
 
     // assemble the buffer
-    return assembleBuffer(changetype<usize>(buffer), 0, buffer.byteLength);
+    return allocBuffer(changetype<usize>(buffer), 0, buffer.byteLength);
   }
 
   public static fromArray<T extends ArrayBufferView>(value: T, offset: i32 = 0, length: i32 = -1): Buffer {
@@ -82,24 +82,24 @@ export class Buffer extends Uint8Array {
       }
     }
 
-    return assembleBuffer(arrayBuffer, 0, length);
+    return allocBuffer(arrayBuffer, 0, length);
   }
 
   public static fromBuffer(source: Buffer): Buffer {
     let length = source.byteLength;
     let data = __alloc(length, idof<ArrayBuffer>()); // retains
     memory.copy(data, source.dataStart, length);
-    return assembleBuffer(data, 0, length);
+    return allocBuffer(data, 0, length);
   }
 
   // @ts-ignore: Buffer returns on all valid branches
   public static from<T>(value: T): Buffer {
     if (value instanceof ArrayBuffer) {
-      return assembleBuffer(changetype<usize>(value), 0, value.byteLength);
+      return allocBuffer(changetype<usize>(value), 0, value.byteLength);
     } else if (value instanceof String) {
       // @ts-ignore value not instance of `string` does changetype<string>(value) work here?
       let buffer = String.UTF8.encode(value);
-      return assembleBuffer(changetype<usize>(buffer), 0, buffer.byteLength);
+      return allocBuffer(changetype<usize>(buffer), 0, buffer.byteLength);
     } else if (value instanceof Buffer) {
       return Buffer.fromBuffer(value);
     } else if (value instanceof ArrayBufferView) {
@@ -119,7 +119,7 @@ export class Buffer extends Uint8Array {
     end   = end   < 0 ? max(len + end,   0) : min(end,   len);
     end   = max(end, begin);
 
-    return assembleBuffer(changetype<usize>(this.buffer), <usize>this.byteOffset + <usize>begin, <u32>end - <u32>begin);
+    return allocBuffer(changetype<usize>(this.buffer), <usize>this.byteOffset + <usize>begin, <u32>end - <u32>begin);
   }
 
   readInt8(offset: i32 = 0): i8 {
