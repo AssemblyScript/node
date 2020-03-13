@@ -36,7 +36,7 @@ describe("buffer", () => {
     expect(Buffer.alloc(10)).toBeTruthy();
     expect(Buffer.alloc(10)).toHaveLength(10);
     let buff = Buffer.alloc(100);
-    for (let i = 0; i < buff.length; i++) expect<u8>(buff[i]).toBe(0);
+    for (let i = 0; i < buff.length; i++) expect(buff[i]).toBe(0);
     expect(buff.buffer).not.toBeNull();
     expect(buff.byteLength).toBe(100);
     expect(() => { Buffer.alloc(-1); }).toThrow();
@@ -89,7 +89,7 @@ describe("buffer", () => {
     expect(floatBuff).toStrictEqual(floatBuffExpected, "float values");
 
     let strArrayExpected = create<Buffer>([1, 2, 3, 4, 5, 6, 7, 0, 0, 0]);
-    let stringValues: string[] = ["1.1", "2.2", "3.3", "4.4", "5.5", "6.6", "7.7", "Infinity", "NaN", "-Infinity"];
+    let stringValues = ["1.1", "2.2", "3.3", "4.4", "5.5", "6.6", "7.7", "Infinity", "NaN", "-Infinity"];
     let strArrayActual = Buffer.from(stringValues);
     expect(strArrayActual).toStrictEqual(strArrayExpected, "Array Of Strings");
   });
@@ -118,10 +118,10 @@ describe("buffer", () => {
 
     // Changing the original Uint16Array changes the Buffer also.
     arr[1] = 6000;
-    expect<Buffer>(buf).toStrictEqual(create<Buffer>([0x88, 0x13, 0x70, 0x17]));
+    expect(buf).toStrictEqual(create<Buffer>([0x88, 0x13, 0x70, 0x17]));
 
     // test optional parameters
-    expect<Buffer>(Buffer.fromArrayBuffer(arr.buffer, 1, 2)).toStrictEqual(create<Buffer>([0x13, 0x70]));
+    expect(Buffer.fromArrayBuffer(arr.buffer, 1, 2)).toStrictEqual(create<Buffer>([0x13, 0x70]));
 
     // TODO:
     // expectFn(() => {
@@ -138,20 +138,20 @@ describe("buffer", () => {
     let buff1 = create<Buffer>([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     let buff2 = Buffer.fromBuffer(buff1);
 
-    expect<Buffer>(buff1).not.toBe(buff2);
-    expect<ArrayBuffer>(buff1.buffer).not.toBe(buff2.buffer);
-    expect<Buffer>(buff1).toStrictEqual(buff2);
+    expect(buff1).not.toBe(buff2);
+    expect(buff1.buffer).not.toBe(buff2.buffer);
+    expect(buff1).toStrictEqual(buff2);
   });
 
   test(".fromArray", () => {
     let buff1 = create<Uint16Array>([3, 6, 9, 12, 15, 18, 21]);
     let buff2 = Buffer.fromArray(buff1, 2, 4);
     let expected = create<Buffer>([9, 12, 15, 18]);
-    expect<Buffer>(buff2).toStrictEqual(expected);
+    expect(buff2).toStrictEqual(expected);
 
     // test string values
     buff2 = Buffer.fromArray(["9.2", "12.1", "15.3", "18.8"]);
-    expect<Buffer>(buff2).toStrictEqual(expected);
+    expect(buff2).toStrictEqual(expected);
   });
 
   // todo: fromArray
@@ -354,7 +354,7 @@ describe("buffer", () => {
     expect(buff.writeInt32LE(-559038737)).toBe(4);
     expect(buff.writeInt32LE(283033613,4)).toBe(8);
     let result = create<Buffer>([0xEF,0xBE,0xAD,0xDE,0x0d,0xc0,0xde,0x10]);
-    expect<Buffer>(buff).toStrictEqual(result);
+    expect(buff).toStrictEqual(result);
     expect(() => {
       let newBuff = new Buffer(1);
       newBuff.writeInt32LE(0);
