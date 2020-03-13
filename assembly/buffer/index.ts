@@ -302,6 +302,7 @@ export namespace Buffer {
       return decodeUnsafe(changetype<usize>(buffer), buffer.byteLength);
     }
 
+    // @ts-ignore: decorator
     @unsafe export function decodeUnsafe(pointer: usize, length: i32): String {
       let result = __alloc(<usize>length << 1, idof<string>());
 
@@ -385,6 +386,7 @@ export namespace Buffer {
     }
 
     /** Decodes a chunk of memory to a utf16le encoded string in hex format. */
+    // @ts-ignore: decorator
     @unsafe export function decodeUnsafe(ptr: usize, length: i32): string {
       let stringByteLength = length << 2; // length * (2 bytes per char) * (2 chars per input byte)
       let result = __alloc(stringByteLength, idof<String>());
@@ -401,6 +403,7 @@ export namespace Buffer {
     }
 
     /** Calculates the two char combination from the byte. */
+    // @ts-ignore: decorator
     @inline function charsFromByte(byte: u32): u32 {
       let hi = (byte >>> 4) & 0xF;
       let lo = byte & 0xF;
