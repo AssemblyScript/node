@@ -293,7 +293,7 @@ export namespace Buffer {
       let output = __alloc(length, idof<ArrayBuffer>());
       for (let i = 0; i < length; i++) {
         let char = load<u16>(changetype<usize>(str) + <usize>(i << 1));
-        store<u8>(output + <usize>i, <u8>(0b01111111 & char));
+        store<u8>(output + <usize>i, char & 0x7F);
       }
       return changetype<ArrayBuffer>(output);
     }
@@ -307,7 +307,7 @@ export namespace Buffer {
 
       for (let i = 0; i < length; i++) {
         let byte = load<u8>(pointer + <usize>i);
-        store<u16>(result + <usize>(i << 1), <u16>(byte & 0b01111111));
+        store<u16>(result + <usize>(i << 1), byte & 0x7F);
       }
 
       return changetype<String>(result);
