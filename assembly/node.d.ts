@@ -96,12 +96,22 @@ declare class Buffer extends Uint8Array {
 }
 
 declare namespace Buffer {
+  /** The HEX encoding and decoding namespace. */
   export namespace HEX {
     /** Creates an ArrayBuffer from a given string that is encoded in the hex format. */
     export function encode(str: string): ArrayBuffer;
     /** Creates a string from a given ArrayBuffer that is decoded into hex format. */
     export function decode(buffer: ArrayBuffer): string;
     /** Decodes a chunk of memory to a utf16le encoded string in hex format. */
+    export function decodeUnsafe(ptr: usize, byteLength: i32): string;
+  }
+  /** The ASCII encoding and decoding namespace. */
+  export namespace ASCII {
+    /** Creates an ArrayBuffer from a given string that is encoded in the ASCII format. */
+    export function encode(str: string): ArrayBuffer;
+    /** Creates a string from a given ArrayBuffer that is decoded into ASCII format. */
+    export function decode(buffer: ArrayBuffer): string;
+    /** Decodes a chunk of memory to a utf16le encoded string in ASCII format. */
     export function decodeUnsafe(ptr: usize, byteLength: i32): string;
   }
 }

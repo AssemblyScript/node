@@ -652,4 +652,18 @@ describe("buffer", () => {
     let decoded = Buffer.HEX.decode(exampleBuffer.buffer);
     expect(decoded).toStrictEqual(expected);
   });
+
+  test("#ASCII.encode", () => {
+    let actual = "D34dB3eF";
+    let exampleBuffer = create<Buffer>([0x44, 0x33, 0x34, 0x64, 0x42, 0x33, 0x65, 0x46]);
+    let encoded = Buffer.ASCII.encode(actual);
+    expect(encoded).toStrictEqual(exampleBuffer.buffer);
+  });
+
+  test("#ASCII.decode", () => {
+    let expected = create<Buffer>([0x44, 0x33, 0x34, 0x64, 0x42, 0x33, 0x65, 0x46]);
+    let example = "D34dB3eF";
+    let encoded = Buffer.ASCII.decode(expected.buffer);
+    expect(encoded).toStrictEqual(example);
+  });
 });
