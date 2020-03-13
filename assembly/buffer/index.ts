@@ -45,7 +45,8 @@ export class Buffer extends Uint8Array {
       buffer = String.UTF16.encode(value);
     } else if (encoding == "hex") {
       buffer = Buffer.HEX.encode(value);
-      // TODO: add ascii encoding
+    } else if (encoding == "ascii") {
+      buffer = Buffer.ASCII.encode(value);
     } else {
       throw new TypeError("Invalid string encoding.");
     }
