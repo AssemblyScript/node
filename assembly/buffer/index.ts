@@ -1,16 +1,57 @@
 import { BLOCK_MAXSIZE, BLOCK, BLOCK_OVERHEAD } from "rt/common";
 import { E_INVALIDLENGTH, E_INDEXOUTOFRANGE } from "util/error";
 import { Uint8Array } from "typedarray";
+import { Array } from "array";
 
 export class Buffer extends Uint8Array {
-  [key: number]: u8;
-
   constructor(size: i32) {
     super(size);
   }
 
   static alloc(size: i32): Buffer {
     return new Buffer(size);
+  }
+
+  public static concat<T extends Uint8Array>(items: Array<T>, length: i32 = i32.MAX_VALUE): Buffer {
+    if (items.length == 0) return new Buffer(0);
+    if (length < 0) throw new Error(E_INDEXOUTOFRANGE);
+
+    let size: usize = 0;
+    let itemCount = <usize>items.length;
+    let itemsDataStart = items.dataStart;
+
+    // loop over each item and increase the size of the resulting buffer
+    for (let i: usize = 0; i < itemCount; i++) {
+      let item = load<usize>(itemsDataStart + (i << alignof<usize>()));
+      // check for nulls
+      if (item == 0) continue;
+      size += <usize>load<u32>(item, offsetof<Buffer>("byteLength"));
+    }
+
+    // account for passed concat buffer length
+    size = min(<usize>length, size);
+
+    let arrayBuffer = __alloc(size, idof<ArrayBuffer>());
+    let result = __alloc(offsetof<Buffer>(), idof<Buffer>());
+
+    // assemble the Buffer
+    store<usize>(result, __retain(arrayBuffer), offsetof<Buffer>("buffer"));
+    store<usize>(result, arrayBuffer, offsetof<Buffer>("dataStart"));
+    store<u32>(result, <u32>size, offsetof<Buffer>("byteLength"));
+
+    let start = arrayBuffer;
+    for (let i: usize = 0; i32(i < itemCount) & i32(size > 0); i++) {
+      let item = load<usize>(itemsDataStart + (i << alignof<usize>()));
+      // if Buffer is null, continue
+      if (item == 0) continue;
+      let count = min(size, <usize>load<u32>(item, offsetof<Buffer>("byteLength")));
+      memory.copy(start, load<usize>(item, offsetof<Buffer>("dataStart")), count);
+      start += count;
+      size -= count;
+    }
+
+    // return and retain
+    return changetype<Buffer>(result);
   }
 
   @unsafe static allocUnsafe(size: i32): Buffer {
