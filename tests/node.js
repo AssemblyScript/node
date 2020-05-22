@@ -40,7 +40,6 @@ const ascOptions = [
   relativeFromCwd(require.resolve("@as-pect/assembly/assembly/index.ts")),
   "--use", "ASC_RTRACE=1",
   "--explicitStart",
-  "--validate",
   "--measure",
   "--lib", "assembly",
   "--transform", require.resolve("@as-pect/core/lib/transform/index.js"),
@@ -122,24 +121,27 @@ function runTest(fileName, type, binary, wat) {
   // should not block testing
   promises.push(fs.writeFile(watPath, wat));
 
+  const wasi = new WASI({
+    args: [],
+    env: process.env,
+    preopens: {
+      './tests/sandbox': './tests/sandbox'
+    }
+  });
+
   const context = new TestContext({
     fileName: fileNamePath, // set the fileName
     reporter, // use verbose reporter
     binary, // pass the binary to get function names
+    wasi,
   });
-  const wasi = new WASI({
-    args: [],
-    env: {},
-    preopens: {
-      // '/sandbox': '/some/real/path/that/wasm/can/access'
-    }
-  });
+
   const imports = context.createImports({
     wasi_snapshot_preview1: wasi.wasiImport,
   });
 
   const instance = instantiateSync(binary, imports);
-  // TODO: wasi.start(instance);
+
   process.stdout.write("\n");
   context.run(instance);
 
