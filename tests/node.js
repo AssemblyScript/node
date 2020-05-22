@@ -4,7 +4,8 @@ const { instantiateSync } = require("assemblyscript/lib/loader");
 const { main } = require("assemblyscript/cli/asc");
 const { parse } = require("assemblyscript/cli/util/options");
 const path = require("path");
-const fs = require("fs").promises;
+const fssync = require("fs");
+const fs = fssync.promises;
 const { WASI } = require("wasi");
 
 const promises = [];
@@ -21,12 +22,28 @@ const options = parse(process.argv.slice(2), {
     "type": "b",
     "alias": "u"
   },
+  "preopens": {
+    "description": "A set of preopened directories for wasi. Ex. ./dir=./dir",
+    "type": "S",
+    "alias": "p",
+    "default": [],
+  },
 });
 
 if (options.unknown.length > 1) {
   console.error("Unknown options arguments: " + options.unknown.join(" "));
   process.exit(1);
 }
+
+// calculate default preopens from cli
+const preopens = options.options.preopens.reduce(
+  (obj, value) => {
+    const [_, dir1, dir2] = /([^=])*=(.*)/.exec(value);
+    obj[dir1] = dir2;
+    return obj;
+  },
+  {}
+);
 
 const reporter = new VerboseReporter();
 reporter.stderr = process.stderr;
@@ -40,7 +57,6 @@ const ascOptions = [
   relativeFromCwd(require.resolve("@as-pect/assembly/assembly/index.ts")),
   "--use", "ASC_RTRACE=1",
   "--explicitStart",
-  "--validate",
   "--measure",
   "--lib", "assembly",
   "--transform", require.resolve("@as-pect/core/lib/transform/index.js"),
@@ -117,29 +133,36 @@ function runTest(fileName, type, binary, wat) {
   const basename = path.basename(fileName, ".ts");
   const fullName = path.join(dirname, basename)
   const watPath = `${fullName}.${type}.wat`;
+  const wasiPath = `${fullName}.wasi.js`;
   const fileNamePath = `${fullName}.${type}.ts`;
+
+  // use either a custom wasi configuration, or the default one
+  const wasiOptions = fssync.existsSync(wasiPath)
+    ? require(path.resolve(wasiPath))
+    : {
+      args: process.argv,
+      env: process.env,
+      preopens,
+    };
 
   // should not block testing
   promises.push(fs.writeFile(watPath, wat));
+
+  const wasi = new WASI(wasiOptions);
 
   const context = new TestContext({
     fileName: fileNamePath, // set the fileName
     reporter, // use verbose reporter
     binary, // pass the binary to get function names
+    wasi,
   });
-  const wasi = new WASI({
-    args: [],
-    env: {},
-    preopens: {
-      // '/sandbox': '/some/real/path/that/wasm/can/access'
-    }
-  });
+
   const imports = context.createImports({
     wasi_snapshot_preview1: wasi.wasiImport,
   });
 
   const instance = instantiateSync(binary, imports);
-  // TODO: wasi.start(instance);
+
   process.stdout.write("\n");
   context.run(instance);
 

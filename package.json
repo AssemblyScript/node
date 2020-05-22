@@ -12,12 +12,12 @@
     "url": "https://github.com/AssemblyScript/node/issues"
   },
   "devDependencies": {
-    "@as-pect/core": "^3.1.0-beta.3",
-    "assemblyscript": "0.9.3",
+    "@as-pect/core": "^3.2.2",
+    "assemblyscript": "0.10.0",
     "glob": "^7.1.6"
   },
   "scripts": {
-    "test": "node --experimental-wasi-unstable-preview1 tests/node"
+    "test": "node --experimental-wasi-unstable-preview1 --experimental-wasm-bigint tests/node"
   },
   "dependencies": {}
 }
