@@ -1,10 +1,20 @@
 import { BLOCK_MAXSIZE, BLOCK, BLOCK_OVERHEAD } from "rt/common";
 import { E_INVALIDLENGTH, E_INDEXOUTOFRANGE } from "util/error";
 import { Uint8Array } from "typedarray";
+import { ArrayBufferView } from "arraybuffer";
+import { Array } from "array";
+
+// @ts-ignore: Decorator
+@inline
+function allocBuffer(arrayBuffer: usize, offset: usize, length: u32): Buffer {
+  let pointer = __alloc(offsetof<Buffer>(), idof<Buffer>());
+  store<usize>(pointer, __retain(arrayBuffer), offsetof<Buffer>("buffer"));
+  store<usize>(pointer, arrayBuffer + offset, offsetof<Buffer>("dataStart"));
+  store<u32>(pointer, length, offsetof<Buffer>("byteLength"));
+  return changetype<Buffer>(pointer);
+}
 
 export class Buffer extends Uint8Array {
-  [key: number]: u8;
-
   constructor(size: i32) {
     super(size);
   }
@@ -16,19 +26,89 @@ export class Buffer extends Uint8Array {
   @unsafe static allocUnsafe(size: i32): Buffer {
     // range must be valid
     if (<usize>size > BLOCK_MAXSIZE) throw new RangeError(E_INVALIDLENGTH);
-    let buffer = __alloc(size, idof<ArrayBuffer>());
-    let result = __alloc(offsetof<Buffer>(), idof<Buffer>());
-
-    // set the properties
-    store<usize>(result, __retain(buffer), offsetof<Buffer>("buffer"));
-    store<usize>(result, buffer, offsetof<Buffer>("dataStart"));
-    store<i32>(result, size, offsetof<Buffer>("byteLength"));
-
-    // return and retain
-    return changetype<Buffer>(result);
+    return allocBuffer(__alloc(size, idof<ArrayBuffer>()), 0, size);
   }
 
-  static isBuffer<T>(value: T): bool {
+  public static fromArrayBuffer(buffer: ArrayBuffer, byteOffset: i32 = 0, length: i32 = -1): Buffer {
+    length = select(buffer.byteLength, length, length < 0);
+    if (i32(byteOffset < 0) | i32(byteOffset > buffer.byteLength - length)) throw new RangeError(E_INDEXOUTOFRANGE);
+    if (length == 0) return new Buffer(0);
+
+    return allocBuffer(changetype<usize>(buffer), <usize>byteOffset, <u32>length);
+  }
+
+  public static fromString(value: string, encoding: string = "utf8"): Buffer {
+    let buffer: ArrayBuffer;
+    if (encoding == "utf8" || encoding == "utf-8") {
+      buffer = String.UTF8.encode(value);
+    } else if (encoding == "utf16le") {
+      buffer = String.UTF16.encode(value);
+    } else if (encoding == "hex") {
+      buffer = Buffer.HEX.encode(value);
+    } else if (encoding == "ascii") {
+      buffer = Buffer.ASCII.encode(value);
+    } else {
+      throw new TypeError("Invalid string encoding.");
+    }
+
+    // assemble the buffer
+    return allocBuffer(changetype<usize>(buffer), 0, buffer.byteLength);
+  }
+
+  public static fromArray<T extends ArrayBufferView>(value: T, offset: i32 = 0, length: i32 = -1): Buffer {
+    length = select(value.length, length, length < 0);
+    if (i32(offset < 0) | i32(offset > value.length)) throw new RangeError(E_INDEXOUTOFRANGE);
+    if (length > value.length - offset) throw new RangeError(E_INVALIDLENGTH);
+    if (length == 0) return new Buffer(0);
+    let arrayBuffer = __alloc(length, idof<ArrayBuffer>());
+    if (value instanceof Array<string>) {
+      for (let i = 0; i < length; i++) {
+        let index = i + offset;
+        let byteValue = parseFloat(unchecked(value[index]));
+        store<u8>(arrayBuffer + <usize>i, <u8>(isFinite(byteValue) ? <u8>byteValue : 0));
+      }
+    } else {
+      for (let i = 0; i < length; i++) {
+        let index = i + offset;
+        let element = isDefined(unchecked(value[index]))
+          ? unchecked(value[index])
+          : value[index];
+
+        if (isFloat(element)) {
+          store<u8>(arrayBuffer + <usize>i, <u8>(isFinite(element) ? <u8>element : 0));
+        } else {
+          store<u8>(arrayBuffer + <usize>i, <u8>element);
+        }
+      }
+    }
+
+    return allocBuffer(arrayBuffer, 0, length);
+  }
+
+  public static fromBuffer(source: Buffer): Buffer {
+    let length = source.byteLength;
+    let data = __alloc(length, idof<ArrayBuffer>()); // retains
+    memory.copy(data, source.dataStart, length);
+    return allocBuffer(data, 0, length);
+  }
+
+  // @ts-ignore: Buffer returns on all valid branches
+  public static from<T>(value: T): Buffer {
+    if (value instanceof ArrayBuffer) {
+      return allocBuffer(changetype<usize>(value), 0, value.byteLength);
+    } else if (value instanceof String) {
+      // @ts-ignore value not instance of `string` does changetype<string>(value) work here?
+      let buffer = String.UTF8.encode(value);
+      return allocBuffer(changetype<usize>(buffer), 0, buffer.byteLength);
+    } else if (value instanceof Buffer) {
+      return Buffer.fromBuffer(value);
+    } else if (value instanceof ArrayBufferView) {
+      return Buffer.fromArray(value);
+    }
+    ERROR("Cannot call Buffer.from<T>() where T is not a string, Buffer, ArrayBuffer, Array, or Array-like Object.");
+  }
+
+  public static isBuffer<T>(value: T): bool {
     return value instanceof Buffer;
   }
 
@@ -39,13 +119,7 @@ export class Buffer extends Uint8Array {
     end   = end   < 0 ? max(len + end,   0) : min(end,   len);
     end   = max(end, begin);
 
-    var out = __alloc(offsetof<Buffer>(), idof<Buffer>()); // retains
-    store<usize>(out, __retain(changetype<usize>(this.buffer)), offsetof<Buffer>("buffer"));
-    store<usize>(out, this.dataStart + <usize>begin, offsetof<Buffer>("dataStart"));
-    store<i32>(out, end - begin, offsetof<Buffer>("byteLength"));
-
-    // retains
-    return changetype<Buffer>(out);
+    return allocBuffer(changetype<usize>(this.buffer), <usize>this.byteOffset + <usize>begin, <u32>end - <u32>begin);
   }
 
   readInt8(offset: i32 = 0): i8 {

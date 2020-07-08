@@ -3,6 +3,16 @@ declare class Buffer extends Uint8Array {
   static alloc(size: i32): Buffer;
   /** This method allocates a new Buffer of indicated size. This is unsafe because the data is not zeroed. */
   static allocUnsafe(size: i32): Buffer;
+  /** This method creates a Buffer from the given reference. This method is naive and defaults to utf8 encoding for strings. */
+  static from<T>(value: T): Buffer;
+  /** This method creates a buffer from a given string. This method defaults to utf8 encoding. */
+  public static fromString(value: string, encoding?: string): Buffer;
+  /** This method creates a buffer that uses the given ArrayBuffer as an underlying value. */
+  public static fromArrayBuffer(buffer: ArrayBuffer, byteOffset?: i32 , length?: i32): Buffer;
+  /** This method creates a copy of the buffer using memory.copy(). */
+  public static fromBuffer(source: Buffer): Buffer;
+  /** This method creates a new Buffer by copying the underlying values to a new ArrayBuffer and coercing each one to an 8 bit integer value. */
+  public static fromArray<T extends ArrayBufferView<number | string>>(value: T, offset?: i32, length?: i32): Buffer;
   /** This method asserts a value is a Buffer object via `value instanceof Buffer`. */
   static isBuffer<T>(value: T): bool;
   /** Reads a signed integer at the designated offset. */
