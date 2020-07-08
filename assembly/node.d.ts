@@ -105,3 +105,19 @@ declare namespace Buffer {
     export function decodeUnsafe(ptr: usize, byteLength: i32): string;
   }
 }
+
+declare module "buffer" {
+  export type TranscodeEncoding = "ascii" | "utf8" | "utf16le" | "ucs2" | "latin1" | "binary";
+
+  export const kMaxLength: i32;
+  export const kStringMaxLength: i32;
+
+  export const constants: {
+    MAX_LENGTH: i32;
+    MAX_STRING_LENGTH: i32;
+  };
+
+  // To export the buffer, we must obtain the `typeof Buffer`
+  const BuffType: typeof Buffer;
+  export { BuffType as Buffer };
+}

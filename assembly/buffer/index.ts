@@ -2,6 +2,14 @@ import { BLOCK_MAXSIZE, BLOCK, BLOCK_OVERHEAD } from "rt/common";
 import { E_INVALIDLENGTH, E_INDEXOUTOFRANGE } from "util/error";
 import { Uint8Array } from "typedarray";
 
+export const kMaxLength       = constants.MAX_LENGTH;
+export const kMaxStringLength = constants.MAX_STRING_LENGTH;
+
+export namespace constants {
+  export const MAX_LENGTH        = i32.MAX_VALUE; // (2 ^ 31) - 1 (~2GB)
+  export const MAX_STRING_LENGTH = BLOCK_MAXSIZE >>> alignof<u16>();
+}
+
 export class Buffer extends Uint8Array {
   [key: number]: u8;
 
