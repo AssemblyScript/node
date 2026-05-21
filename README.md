@@ -25,7 +25,7 @@ $> npm install --save-dev AssemblyScript/node
 and include it in your build step to gain access to the implementations it provides:
 
 ```
-$> asc --lib ./node_modules/@assemblyscript/node/assembly [...]
+$> asc ./node_modules/@assemblyscript/node/assembly --lib [...]
 ```
 
 Doing so will automatically register common globals like the `Buffer` class and enables requiring
