@@ -36,7 +36,7 @@ describe("buffer", () => {
     expect(Buffer.alloc(10)).toBeTruthy();
     expect(Buffer.alloc(10)).toHaveLength(10);
     let buff = Buffer.alloc(100);
-    for (let i = 0; i < buff.length; i++) expect<u8>(buff[i]).toBe(0);
+    for (let i = 0; i < buff.length; i++) expect(buff[i]).toBe(0);
     expect(buff.buffer).not.toBeNull();
     expect(buff.byteLength).toBe(100);
     expect(() => { Buffer.alloc(-1); }).toThrow();
@@ -54,6 +54,108 @@ describe("buffer", () => {
     // TODO: figure out how to test block maxsize
     // expect(() => { Buffer.allocUnsafe(BLOCK_MAXSIZE + 1); }).toThrow();
   });
+
+  /**
+   * This specification is a tradeoff, because Buffer.from() takes _many_ parameters.
+   * Instead, the only common parameter is the first one, which results in Buffer.from
+   * acting in a very naive fashion. Perhaps an optional encoding parameter might be
+   * possible for strings, at least. However, this makes things more complicated.
+   * There are no good solutions. Only tradeoffs. Function overloading is the only
+   * way to fix this problem.
+   */
+  test(".from", () => {
+    // Buffer.from uses the array buffer reference
+    let buff = new ArrayBuffer(100);
+    for (let i = 0; i < 100; i++) store<u8>(changetype<usize>(buff), u8(i));
+    let abBuffer = Buffer.from(buff);
+    expect(abBuffer.buffer).toStrictEqual(buff);
+    expect(abBuffer.buffer).toBe(buff);
+
+    // strings are utf8 encoded by default
+    let strBuffer = Buffer.from("Hello world!");
+    let strBufferExpected = create<Buffer>([0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21]);
+    expect(strBuffer).toStrictEqual(strBufferExpected);
+
+    // buffer returns a new reference view to a new ArrayBuffer
+    let buff2 = Buffer.from(abBuffer);
+    expect(buff2).not.toBe(abBuffer);
+    expect(buff2).toStrictEqual(abBuffer);
+    expect(buff2.buffer).not.toBe(abBuffer.buffer);
+
+    // else if it extends ArrayBufferView simply converts all the values
+    let floats = create<Float32Array>([1.1, 2.2, 3.3]);
+    let floatBuff = Buffer.from(floats);
+    let floatBuffExpected = create<Buffer>([1, 2, 3]);
+    expect(floatBuff).toStrictEqual(floatBuffExpected, "float values");
+
+    let strArrayExpected = create<Buffer>([1, 2, 3, 4, 5, 6, 7, 0, 0, 0]);
+    let stringValues = ["1.1", "2.2", "3.3", "4.4", "5.5", "6.6", "7.7", "Infinity", "NaN", "-Infinity"];
+    let strArrayActual = Buffer.from(stringValues);
+    expect(strArrayActual).toStrictEqual(strArrayExpected, "Array Of Strings");
+  });
+
+  test(".fromString", () => {
+    // public static fromString(value: string, encoding: string = "utf8"): Buffer {
+    // default encoding is utf8
+    let expected = create<Buffer>([0x74, 0x68, 0x69, 0x73, 0x20, 0x69, 0x73, 0x20, 0x61, 0x20, 0x74, 0xc3, 0xa9, 0x73, 0x74])
+    expect(Buffer.from('this is a tést'))
+      .toStrictEqual(expected);
+
+    expect(Buffer.fromString('7468697320697320612074c3a97374', 'hex'))
+      .toStrictEqual(expected);
+  });
+
+  test(".fromArrayBuffer", () => {
+    const arr = new Uint16Array(2);
+
+    arr[0] = 5000;
+    arr[1] = 4000;
+
+    // Shares memory with `arr`.
+    const buf = Buffer.fromArrayBuffer(arr.buffer);
+
+    expect(buf).toStrictEqual(create<Buffer>([0x88, 0x13, 0xa0, 0x0f]));
+
+    // Changing the original Uint16Array changes the Buffer also.
+    arr[1] = 6000;
+    expect(buf).toStrictEqual(create<Buffer>([0x88, 0x13, 0x70, 0x17]));
+
+    // test optional parameters
+    expect(Buffer.fromArrayBuffer(arr.buffer, 1, 2)).toStrictEqual(create<Buffer>([0x13, 0x70]));
+
+    // TODO:
+    // expectFn(() => {
+    //   let value = create<Uint16Array>([5000, 4000]); // 4 bytes
+    //   Buffer.fromArrayBuffer(value.buffer, 5);
+    // }).toThrow("offset out of bounds should throw");
+    // expectFn(() => {
+    //   let value = create<Uint16Array>([5000, 4000]); // 4 bytes
+    //   Buffer.fromArrayBuffer(value.buffer, 2, 3);
+    // }).toThrow("length out of bounds should throw");
+  });
+
+  test(".fromBuffer", () => {
+    let buff1 = create<Buffer>([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let buff2 = Buffer.fromBuffer(buff1);
+
+    expect(buff1).not.toBe(buff2);
+    expect(buff1.buffer).not.toBe(buff2.buffer);
+    expect(buff1).toStrictEqual(buff2);
+  });
+
+  test(".fromArray", () => {
+    let buff1 = create<Uint16Array>([3, 6, 9, 12, 15, 18, 21]);
+    let buff2 = Buffer.fromArray(buff1, 2, 4);
+    let expected = create<Buffer>([9, 12, 15, 18]);
+    expect(buff2).toStrictEqual(expected);
+
+    // test string values
+    buff2 = Buffer.fromArray(["9.2", "12.1", "15.3", "18.8"]);
+    expect(buff2).toStrictEqual(expected);
+  });
+
+  // todo: fromArray
+  // todo: fromBuffer
 
   test("#isBuffer", () => {
     let a = "";
@@ -252,7 +354,7 @@ describe("buffer", () => {
     expect(buff.writeInt32LE(-559038737)).toBe(4);
     expect(buff.writeInt32LE(283033613,4)).toBe(8);
     let result = create<Buffer>([0xEF,0xBE,0xAD,0xDE,0x0d,0xc0,0xde,0x10]);
-    expect<Buffer>(buff).toStrictEqual(result);
+    expect(buff).toStrictEqual(result);
     expect(() => {
       let newBuff = new Buffer(1);
       newBuff.writeInt32LE(0);
